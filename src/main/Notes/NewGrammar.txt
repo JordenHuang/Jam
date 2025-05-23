@@ -1,0 +1,57 @@
+program        → (declaration | htmlStmt)* EOF ;
+
+declaration    → varDecl
+               | includeStmt
+               | statement ;
+
+htmlStmt       → HTML ; // 來自 lexer 的 HTML token（非 Java 語法部分）
+
+varDecl        → type IDENTIFIER ("=" expression)? ";"* ;
+
+type           → "int" | "float" | "double" | "char" | "String" 
+               | "boolean" | "short" | "long" 
+               | IDENTIFIER ; // 支援非 primitive 的自訂型別
+
+includeStmt    → "include" STRING ";"* ;
+
+statement      → exprStmt
+               | ifStmt
+               | forStmt
+               | whileStmt
+               | block ;
+
+exprStmt       → expression ";"* | HTML ;
+
+ifStmt         → "if" "(" expression ")" statement ("else" statement)? ;
+
+forStmt        → "for" "(" (varDecl | exprStmt | ";") expression? ";" expression? ")" statement ;
+
+whileStmt      → "while" "(" expression ")" statement ;
+
+block          → "{" declaration* "}" ;
+
+expression     → assignment ;
+
+assignment     → IDENTIFIER "=" assignment
+               | logic_or ;
+
+logic_or       → logic_and ( "||" logic_and )* ;
+logic_and      → equality ( "&&" equality )* ;
+
+equality       → comparison ( ( "==" | "!=" ) comparison )* ;
+comparison     → term ( ( "<" | "<=" | ">" | ">=" ) term )* ;
+term           → factor ( ( "+" | "-" ) factor )* ;
+factor         → unary ( ( "*" | "/" ) unary )* ;
+
+unary          → ( "!" | "-" ) unary
+               | primary ;
+//                | call ;
+
+// call           → primary ( "(" arguments? ")" )* ;
+
+arguments      → expression ( "," expression )* ;
+
+primary        → "true" | "false" | "null"
+               | NUMBER | STRING | CHAR
+               | IDENTIFIER
+               | "(" expression ")" ;

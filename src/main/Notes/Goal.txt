@@ -1,0 +1,13 @@
+分割符，模板內使用分割符({%%})，只能於分割符內寫Java程式,
+支援部分的Java語法(only support a subset of Java)：
+variable declaration,
+array declaration,
+logical comparison,
+block,
+if-else,
+for,
+while,
+參數傳遞，在渲染時若遇到變數，則帶入傳入的參數的值
+要支援(support)如int, float, double, char, String, bool, short, long等型態的參數,
+能夠支援傳入非primitive type物件,
+支援模板引入 (例如共同的header或footer, 那就寫一份 然後在其他頁面引入使用)

@@ -1,0 +1,150 @@
+program        → declaration* EOF ;
+
+declaration    → varDecl
+               | statement ;
+
+varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
+
+statement      → exprStmt
+               | forStmt
+               | ifStmt
+               | printStmt
+               | whileStmt
+               | block ;
+
+forStmt        → "for" "(" ( varDecl | exprStmt | ";" )
+                 expression? ";"
+                 expression? ")" statement ;
+
+whileStmt      → "while" "(" expression ")" statement ;
+
+ifStmt         → "if" "(" expression ")" statement
+               ( "else" statement )? ;
+
+block          → "{" declaration* "}" ;
+
+exprStmt       → expression ";" ;
+printStmt      → "print" expression ";" ;
+
+expression     → assignment ;
+assignment     → IDENTIFIER "=" assignment
+               | logic_or ;
+logic_or       → logic_and ( "or" logic_and )* ;
+logic_and      → equality ( "and" equality )* ;
+
+equality       → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term           → factor ( ( "-" | "+" ) factor )* ;
+factor         → unary ( ( "/" | "*" ) unary )* ;
+unary          → ( "!" | "-" ) unary
+               | primary ;
+primary        → "true" | "false" | "nil"
+               | NUMBER | STRING
+               | "(" expression ")"
+               | IDENTIFIER ;
+
+
+
+# Our grammar for the subset of java
+// expr ::=
+program        → declaration* EOF ;
+
+declaration    → varDecl
+               | statement ;
+
+varDecl        → "var" IDENTIFIER ( "=" expression )? ";"* ;
+
+statement      → exprStmt
+               | forStmt
+               | ifStmt
+               | whileStmt
+               | htmlStmt
+               | block ;
+
+htmlStmt       → STRING;
+
+forStmt        → "for" "(" ( varDecl | exprStmt | ";" )
+                 expression? ";"
+                 expression? ")" statement ;
+
+whileStmt      → "while" "(" expression ")" statement ;
+
+ifStmt         → "if" "(" expression ")" statement
+               ( "else" statement )? ;
+
+block          → "{" declaration* "}" ;
+
+exprStmt       → expression ";"* ;
+
+expression     → assignment ;
+assignment     → IDENTIFIER "=" assignment
+               | logic_or ;
+logic_or       → logic_and ( "or" logic_and )* ;
+logic_and      → equality ( "and" equality )* ;
+
+equality       → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term           → factor ( ( "-" | "+" ) factor )* ;
+factor         → unary ( ( "/" | "*" ) unary )* ;
+unary          → ( "!" | "-" ) unary
+               | primary ;
+primary        → "true" | "false" | "nil"
+               | NUMBER | INT | DOUBLE | CHAR | BOOLEAN | STRING
+               | "(" expression ")"
+               | IDENTIFIER ;
+
+
+# Test cases
+{%int i = -1; i%}
+{%double i = -1; i%}
+<p>{%int i = 0; double j = 1.0; i+j%}</p>
+{% char t = ' '; {int i = 0; double j = 1.0; i+j t}{int i = 0; int j = 1; i+j t}{int i = 0; double j = 1; i+j t} %}
+
+# Works (pass)
+<p></p>
+<p>{%-123 * (45.67)%}</p>
+{%-123 * (45.67)%}
+-123 * (45.67)
+{% for (int i = 1; i < 10; i = i+1) { %} <th>{% i; %}</th> {% } %}
+{% for (int i = 1; i < 10; i = i+1) { %} <th>{% i %}</th> {% } %}
+
+<tr> {% for (int i = 1; i < 10; i=i+1) { %} <th>{% i %}</th> {% } %} </tr>
+{%for(int i = 1; i < 10; i=i+1) for (int j = 1; j < 10;j=j+1) i*j { } %}
+{%char temp = ' '; for(int i = 1; i < 6; i=i+1) { for (int j = 1; j < 6;j=j+1) {temp i*j}} %}
+{%int a = 0.0; if (a == 0.0) a%}
+{%int a = 0.0; if (a != 0.0) a%}
+{%int a = 0.0; if (a >= 0.0) a%}
+{% for(int i = 0; i < 3; i=i+1) %} {% i %}
+
+# Works (failed)
+<p>{%var a = 0;%}</p>
+<p>{%-123 * (45.67<\p>
+{% for (var i = 1; i < 10; i = i+1) { %} <th>{% i; %}</th> {% } %}
+{% for (var i = 1; i < 10; i = i+1) { %} <th>{% i %}</th> {% } %}
+<tr> {% for (var i = 1; i < 10; i=i+1) { %} <th>{% i %}</th> {% } %} </tr>
+{%for(var i = 1; i < 10; i=i+1) for (var j = 1; j < 10;j=j+1) i*j { } %}
+{%var temp = " "; for(var i = 1; i < 6; i=i+1) { for (var j = 1; j < 6;j=j+1) {temp i*j}} %}
+{%var a = 0.0; if (a == 0.0) a%}
+{%var a = 0.0; if (a != 0.0) a%}
+{%var a = 0.0; if (a >= 0.0) a%}
+{% for(var i = 0; i < 3; i=i+1) %} {% i %}
+
+
+## Not working
+
+## But below works
+
+
+分割符，模板內使用分割符({%%})，只能於分割符內寫Java程式,
+支援部分的Java語法(only support a subset of Java)：
+variable declaration,
+array declaration,
+logical comparison,
+block,
+if-else,
+for,
+while,
+參數傳遞，在渲染時若遇到變數，則帶入傳入的參數的值
+要支援(support)如int, float, double, char, String, bool, short, long等型態的參數,
+能夠支援傳入非primitive type物件,
+支援模板引入 (例如共同的header或footer, 那就寫一份 然後在其他頁面引入使用)
