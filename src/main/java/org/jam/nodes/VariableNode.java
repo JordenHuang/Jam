@@ -1,14 +1,14 @@
 package org.jam.nodes;
 
-import org.jam.*;
+import org.jam.Token;
 
 public class VariableNode<T> extends Expr<T> {
     public final Token name;
-    public TokenType tokenType;
+    public String typeName;
 
-    public VariableNode(Token name, TokenType tokenType) {
+    public VariableNode(Token name, String typeName) {
         this.name = name;
-        this.tokenType = tokenType;
+        this.typeName = typeName;
     }
 
     @Override

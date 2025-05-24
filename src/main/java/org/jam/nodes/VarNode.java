@@ -1,18 +1,15 @@
 package org.jam.nodes;
 
 import org.jam.Token;
-import org.jam.TokenType;
-
 
 public class VarNode<T> extends Stmt<T> {
     public Token name;
-    public TokenType tokenType;
-
+    public String typeName;
     public Expr<T> initializer;
 
-    public VarNode(Token name, TokenType tokenType, Expr<T> initializer) {
+    public VarNode(Token name, String typeName, Expr<T> initializer) {
         this.name = name;
-        this.tokenType = tokenType;
+        this.typeName = typeName;
         this.initializer = initializer;
     }
 

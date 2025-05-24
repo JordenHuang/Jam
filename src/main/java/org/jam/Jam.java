@@ -77,6 +77,7 @@ public class Jam {
             System.out.print("> ");
             String line = reader.readLine();
             if (line.equals("exit")) break;
+            if (line.isEmpty()) continue;
             run(line);
             hadError = false;
         }
@@ -116,7 +117,7 @@ public class Jam {
 //        interpreter.interpret(expression);
         interpreter.interpret(statements);
 
-//        System.out.println();
+        System.out.println();
     }
 
     public static void main(String[] args) throws IOException {
@@ -126,10 +127,10 @@ public class Jam {
         } else if (args.length == 1) {
             runFile(args[0]);
         } else {
-            String basePath = "src/main/templates/";
-            String templateFileName = "9x9.template";
-            runFile(basePath + templateFileName);
-//            runPrompt();
+//            String basePath = "src/main/templates/";
+//            String templateFileName = "9x9.template";
+//            runFile(basePath + templateFileName);
+            runPrompt();
         }
     }
 }

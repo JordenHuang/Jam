@@ -52,23 +52,22 @@ public class Parser {
     }
 
     private Stmt varDeclaration() {
-        TokenType variableType = previous().type;
+        Token typeToken = previous();
+        String typeName = Token.convertTypeToString(typeToken.type);
 
         Token name = consume(TokenType.IDENTIFIER, "Expect variable name.");
 
         Expr initializer = null;
         if (match(TokenType.EQUAL)) {
             initializer = expression();
-//            Jam.log("[INFO in parser]: initializer: " + ((LiteralNode)((UnaryNode)initializer).right).value + " " + variableType);
         }
 
-//        consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
         // Consume more ';'s
         do {
             consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
         } while (check(TokenType.SEMICOLON));
 
-        return new VarNode(name, variableType, initializer);
+        return new VarNode(name, typeName, initializer);
     }
 
     private Stmt htmlStatement() {
@@ -294,7 +293,8 @@ public class Parser {
             return new LiteralNode(previous().literal);
 
         if (match(TokenType.IDENTIFIER)) {
-            return new VariableNode(previous(), previous().type);
+            Token token = previous();
+            return new VariableNode(token, "Identifier");
         }
 
         if (match(TokenType.LEFT_PAREN)) {

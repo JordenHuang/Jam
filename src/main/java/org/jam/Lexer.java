@@ -23,6 +23,7 @@ public class Lexer {
         keywords.put("char"   , TokenType.CHAR_TYPE);
         keywords.put("boolean", TokenType.BOOLEAN_TYPE);
         keywords.put("String" , TokenType.STRING_TYPE);
+        keywords.put("null"   , TokenType.NULL);
         keywords.put("true"   , TokenType.TRUE);
         keywords.put("false"  , TokenType.FALSE);
         keywords.put("if"     , TokenType.IF);

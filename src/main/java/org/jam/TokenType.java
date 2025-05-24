@@ -17,13 +17,14 @@ public enum TokenType {
 
     // Literals
     IDENTIFIER, NUMBER,
-    // Keywords
-    IF, ELSE, FOR, WHILE, TRUE, FALSE, NULL, RETURN, AND, OR,
-    INT, DOUBLE,
-    CHAR, STRING, BOOLEAN,
+    CHAR, STRING,
+    TRUE, FALSE,
 
+    // Keywords
+    IF, ELSE, FOR, WHILE, NULL, RETURN, AND, OR,
+
+    // Primitive types
     INT_TYPE, DOUBLE_TYPE, CHAR_TYPE, STRING_TYPE, BOOLEAN_TYPE,
 
     EOF;
-
 }

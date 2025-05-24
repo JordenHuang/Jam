@@ -18,30 +18,20 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
 
     @Override
     public Object visitUnaryNode(UnaryNode<Object> expr) {
-        Object right = evaluate(expr.right);
+        Object rightObj = evaluate(expr.right);
+        TypedValue right = convertToTypedValue(rightObj);
 
         switch (expr.operator.type) {
             case BANG:
-                return !isBoolean(right);
+                return new TypedValue(!isBoolean(right.getValue()), "Boolean_type");
             case MINUS:
-//                if (expr.right instanceof LiteralNode<Object>) {
-//                    if (((LiteralNode)expr).value)
-//                }
-//                NumberType nt = checkNumberOperand(expr.operator, right);
-//                if (nt == NumberType.INT) return -(int)right;
-//                else return -(double)right;
-//                if (right instanceof Integer) {
-//                    if (((VariableNode) expr.right).tokenType == TokenType.INT) {
-//                        return -(int)right;
-//                    } else {
-//                        return -(double)right;
-//                    }
-//                }
-                if (right instanceof EnvironmentField) {
-                    return -(double)(((EnvironmentField) right).getValue());
+                if (right.isInteger()) {
+                    return new TypedValue(-right.asInt(), "Int_type");
+                } else if (right.isNumeric()) {
+                    return new TypedValue(-right.asDouble(), "Double_type");
+                } else {
+                    throw new RuntimeError(expr.operator, "Operand must be a number.");
                 }
-                else
-                    return -(double)right;
         }
 
         // Unreachable.
@@ -51,65 +41,58 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
 
     @Override
     public Object visitBinaryNode(BinaryNode<Object> expr) {
-        Object left = evaluate(expr.left);
-        Object right = evaluate(expr.right);
-
-        if (left instanceof EnvironmentField) {
-            left = (double)(((EnvironmentField) left).getValue());
-        }
-        if (right instanceof EnvironmentField) {
-            right = (double)(((EnvironmentField) right).getValue());
-        }
+        Object leftObj = evaluate(expr.left);
+        Object rightObj = evaluate(expr.right);
+        
+        TypedValue left = convertToTypedValue(leftObj);
+        TypedValue right = convertToTypedValue(rightObj);
 
         switch (expr.operator.type) {
             case PLUS:
-//                if (left instanceof Integer && right instanceof Integer) {
-//                    return (int)left + (int)((Integer) right).doubleValue();
-//                }
-//                else if (left instanceof Integer && right instanceof Double) {
-//                    return (Integer) left + (Double) right;
-//                }
-//                else if (left instanceof Double && right instanceof Integer) {
-//                    return (Double) left + (Integer) right;
-//                }
-//                else if (left instanceof Double && right instanceof Double) {
-//                    return (Double) left + (Double) right;
-//                }
-
-                if (left instanceof Double && right instanceof Double) {
-                    return (double)left + (double)right;
+                if (left.isNumeric() && right.isNumeric()) {
+                    if (left.isInteger() && right.isInteger()) {
+                        return new TypedValue(left.asInt() + right.asInt(), "Int_type");
+                    } else {
+                        return new TypedValue(left.asDouble() + right.asDouble(), "Double_type");
+                    }
                 }
 
-                if (left instanceof String && right instanceof String) {
-                    return (String)left + (String)right;
+                if (left.getValue() instanceof String && right.getValue() instanceof String) {
+                    return new TypedValue((String)left.getValue() + (String)right.getValue(), "String_type");
                 }
                 throw new RuntimeError(expr.operator, "Operands must be two numbers or two strings.");
             case MINUS:
-                // TODO: Maybe create a function that checks type and operate them
-                // Like: numberOperate(left, right, operator)
-                // And also remove the NumberType
                 checkNumberOperands(expr.operator, left, right);
-                return (double)left - (double)right;
+                if (left.isInteger() && right.isInteger()) {
+                    return new TypedValue(left.asInt() - right.asInt(), "Int_type");
+                } else {
+                    return new TypedValue(left.asDouble() - right.asDouble(), "Double_type");
+                }
             case STAR:
                 checkNumberOperands(expr.operator, left, right);
-                return (double)left * (double)right;
+                if (left.isInteger() && right.isInteger()) {
+                    return new TypedValue(left.asInt() * right.asInt(), "Int_type");
+                } else {
+                    return new TypedValue(left.asDouble() * right.asDouble(), "Double_type");
+                }
             case SLASH:
                 checkNumberOperands(expr.operator, left, right);
-                return (double)left / (double)right;
+                // Division typically returns a floating-point result
+                return new TypedValue(left.asDouble() / right.asDouble(), "Double_type");
             case GREATER:
                 checkNumberOperands(expr.operator, left, right);
-                return (double)left > (double)right;
+                return new TypedValue(left.asDouble() > right.asDouble(), "Boolean_type");
             case GREATER_EQUAL:
                 checkNumberOperands(expr.operator, left, right);
-                return (double)left >= (double)right;
+                return new TypedValue(left.asDouble() >= right.asDouble(), "Boolean_type");
             case LESS:
                 checkNumberOperands(expr.operator, left, right);
-                return (double)left < (double)right;
+                return new TypedValue(left.asDouble() < right.asDouble(), "Boolean_type");
             case LESS_EQUAL:
                 checkNumberOperands(expr.operator, left, right);
-                return (double)left <= (double)right;
-            case BANG_EQUAL: return !isEqual(left, right);
-            case EQUAL_EQUAL: return isEqual(left, right);
+                return new TypedValue(left.asDouble() <= right.asDouble(), "Boolean_type");
+            case BANG_EQUAL: return new TypedValue(!isEqual(left.getValue(), right.getValue()), "Boolean_type");
+            case EQUAL_EQUAL: return new TypedValue(isEqual(left.getValue(), right.getValue()), "Boolean_type");
         }
 
         // Unreachable.
@@ -120,17 +103,29 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
     @Override
     public Object visitLiteralNode(LiteralNode<Object> expr) {
         Jam.log("[INFO in Interpreter] Literal, value: " + expr.value);
+        if (expr.value instanceof Number) {
+            if (expr.value instanceof Integer) {
+                return new TypedValue(expr.value, "Int_type");
+            } else {
+                return new TypedValue(expr.value, "Double_type");
+            }
+        } else if (expr.value instanceof String) {
+            return new TypedValue(expr.value, "String_type");
+        } else if (expr.value instanceof Boolean) {
+            return new TypedValue(expr.value, "Boolean_type");
+        }
         return expr.value;
     }
 
     @Override
     public Object visitLogicalExpr(LogicalNode<Object> expr) {
-        Object left = evaluate(expr.left);
+        Object leftObj = evaluate(expr.left);
+        TypedValue left = convertToTypedValue(leftObj);
 
         if (expr.operator.type == TokenType.OR) {
-            if (isBoolean(left)) return left;
+            if (isBoolean(left.getValue())) return left;
         } else {
-            if (!isBoolean(left)) return left;
+            if (!isBoolean(left.getValue())) return left;
         }
 
         return evaluate(expr.right);
@@ -143,17 +138,20 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
 
     @Override
     public Object visitVariableExpr(VariableNode<Object> expr) {
-        Jam.log("[INFO in Interpreter] Variable, value: " + environment.get(expr.name).getValue() + ", " + expr.name);
-        return environment.get(expr.name);
+        EnvironmentField field = environment.get(expr.name);
+        Jam.log("[INFO in Interpreter] Variable, value: " + field.getValue() + ", " + expr.name);
+        return new TypedValue(field.getValue(), field.getTypeName());
     }
 
     @Override
     public Object visitAssignmentExpr(AssignmentNode<Object> expr) {
         EnvironmentField env = environment.get(expr.name);
-        Object value = evaluate(expr.value);
+        Object valueObj = evaluate(expr.value);
+        TypedValue value = convertToTypedValue(valueObj);
+        
         // Variable name, value, and type name
-        Jam.log("[INFO in Interpreter]typename: " + env.getTypeName() + " " + value + " " + expr.name);
-        environment.assign(expr.name, value, env.getTypeName());
+        Jam.log("[INFO in Interpreter]typename: " + env.getTypeName() + " " + value.getValue() + " " + expr.name);
+        environment.assign(expr.name, value.getValue(), env.getTypeName());
         return value;
     }
 
@@ -171,7 +169,10 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
 
     @Override
     public Void visitIfStmt(IfNode<Void> stmt) {
-        if (isBoolean(evaluate(stmt.condition))) {
+        Object condObj = evaluate(stmt.condition);
+        TypedValue cond = convertToTypedValue(condObj);
+        
+        if (isBoolean(cond.getValue())) {
             execute(stmt.thenBranch);
         } else if (stmt.elseBranch != null) {
             execute(stmt.elseBranch);
@@ -183,23 +184,21 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
     public Void visitVarStmt(VarNode<Void> stmt) {
         Object value = null;
         if (stmt.initializer != null) {
-            value = evaluate(stmt.initializer);
-            Jam.log("[INFO in Interpreter] in visitVarStmt, value is: " + value + " " + Token.convertTypeToString(stmt.tokenType));
+            Object valueObj = evaluate(stmt.initializer);
+            TypedValue typedValue = convertToTypedValue(valueObj);
+            value = typedValue.getValue();
+            Jam.log("[INFO in Interpreter] in visitVarStmt, value is: " + value + " " + stmt.typeName);
         }
-        environment.define(stmt.name.lexeme, value, Token.convertTypeToString(stmt.tokenType));
-//        if (value != null && stmt.tokenType == TokenType.INT) {
-//            environment.define(stmt.name.lexeme, ((int)value));
-//        } else if (value != null && stmt.tokenType == TokenType.DOUBLE) {
-//            environment.define(stmt.name.lexeme, (double)value);
-//        } else {
-//            environment.define(stmt.name.lexeme, value);
-//        }
+        environment.define(stmt.name.lexeme, value, stmt.typeName);
         return null;
     }
 
     @Override
     public Void visitWhileStmt(WhileNode<Void> stmt) {
-        while (isBoolean(evaluate(stmt.condition))) {
+        while (true) {
+            Object condObj = evaluate(stmt.condition);
+            TypedValue cond = convertToTypedValue(condObj);
+            if (!isBoolean(cond.getValue())) break;
             execute(stmt.body);
         }
         return null;
@@ -207,37 +206,26 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
 
     @Override
     public Void visitHtmlStmt(HtmlNode<Void> stmt) {
-        Object value = evaluate(stmt.expr);
-        if (value instanceof EnvironmentField) {
-            String typeName = ((EnvironmentField) value).getTypeName();
-//            System.out.println("typeName: " + typeName);
-            if (typeName.equals("Identifier")) {
-                System.out.print("Identifier: ");
-                System.out.print(((EnvironmentField) value).getValue());
-                System.out.println("[info] ident");
-            } else if (typeName.equals("Int_type")) {
-                Number numberValue = ((Number)((EnvironmentField) value).getValue());
-                System.out.println("[info] int");
-                System.out.print(numberValue.intValue());
-            } else if (typeName.equals("Double_type")) {
-                Number numberValue = ((Number)((EnvironmentField) value).getValue());
-                System.out.println("[info] double");
-                System.out.print(numberValue.doubleValue());
-            } else {
-                System.out.println("[info] else");
-                System.out.print((String) ((EnvironmentField) value).getValue());
-            }
+        Object valueObj = evaluate(stmt.expr);
+        TypedValue value = convertToTypedValue(valueObj);
+        
+        String typeName = value.getTypeName();
+        if (typeName.equals("Identifier")) {
+            System.out.print("Identifier: ");
+            System.out.print(value.getValue());
+        } else if (typeName.equals("Int_type")) {
+            System.out.print(value.asInt());
+        } else if (typeName.equals("Double_type")) {
+            System.out.print(value.asDouble());
+        } else if (typeName.equals("String_type")) {
+            System.out.print(value.getValue());
         } else {
-            Jam.log("[INFO in Interpreter] in visitHtmlStmt, value is not instance of EnvironmentField");
-            System.out.println("[info] value");
-            System.out.print(value);
+            System.out.print(value.getValue());
         }
         return null;
     }
 
-
     // Helper function
-    /* TODO: Check this "Raw use of parameterized class 'Expr'" */
     private Object evaluate(Expr expr) {
         return expr.accept(this);
     }
@@ -278,34 +266,29 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         return a.equals(b);
     }
 
-    private void checkNumberOperand(Token operator, Object operand) {
-        if (operand instanceof Integer) return;
-        if (operand instanceof Double) return;
-        throw new RuntimeError(operator, "Operand must be a number.");
-    }
-
-    private void checkNumberOperands(Token operator, Object left, Object right) {
-//        if (left instanceof Double || left instanceof EnvironmentField) {
-//            if (right instanceof Double || right instanceof EnvironmentField) return;
-//            return;
-//        }
-        if (left instanceof Double && right instanceof Double) return;
+    private void checkNumberOperands(Token operator, TypedValue left, TypedValue right) {
+        if (left.isNumeric() && right.isNumeric()) return;
         throw new RuntimeError(operator, "Operands must be numbers.");
     }
-
-    private String stringify(Object object) {
-        if (object == null) return "nil";
-
-        if (object instanceof Number) {
-            String text = object.toString();
-            if (text.endsWith(".0")) {
-                text = text.substring(0, text.length() - 2);
+    
+    private TypedValue convertToTypedValue(Object obj) {
+        if (obj instanceof TypedValue) {
+            return (TypedValue)obj;
+        } else if (obj instanceof EnvironmentField) {
+            EnvironmentField field = (EnvironmentField)obj;
+            return new TypedValue(field.getValue(), field.getTypeName());
+        } else if (obj instanceof Number) {
+            if (obj instanceof Integer) {
+                return new TypedValue(obj, "Int_type");
+            } else {
+                return new TypedValue(obj, "Double_type");
             }
-            return text;
+        } else if (obj instanceof String) {
+            return new TypedValue(obj, "String_type");
+        } else if (obj instanceof Boolean) {
+            return new TypedValue(obj, "Boolean_type");
+        } else {
+            return new TypedValue(obj, "Object_type");
         }
-
-        return object.toString();
     }
-
-//    private Object ...(){}
 }
