@@ -6,13 +6,19 @@ import java.util.List;
 
 public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
     private Environment environment = new Environment();
+    private final Reporter reporter;
+
+    public Interpreter(Reporter reporter) {
+        this.reporter = reporter;
+    }
+
     void interpret(List<Stmt> statements) {
         try {
             for (Stmt statement : statements) {
                 execute(statement);
             }
         } catch (RuntimeError error) {
-            Jam.runtimeError(error);
+            reporter.runtimeError(error);
         }
     }
 
@@ -102,7 +108,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
 
     @Override
     public Object visitLiteralNode(LiteralNode<Object> expr) {
-        Jam.log("[INFO in Interpreter] Literal, value: " + expr.value);
+        reporter.log("[INFO in Interpreter] Literal, value: " + expr.value);
         if (expr.value instanceof Number) {
             if (expr.value instanceof Integer) {
                 return new TypedValue(expr.value, "Int_type");
@@ -139,7 +145,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
     @Override
     public Object visitVariableExpr(VariableNode<Object> expr) {
         EnvironmentField field = environment.get(expr.name);
-        Jam.log("[INFO in Interpreter] Variable, value: " + field.getValue() + ", " + expr.name);
+        reporter.log("[INFO in Interpreter] Variable, value: " + field.getValue() + ", " + expr.name);
         return new TypedValue(field.getValue(), field.getTypeName());
     }
 
@@ -150,7 +156,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         TypedValue value = convertToTypedValue(valueObj);
         
         // Variable name, value, and type name
-        Jam.log("[INFO in Interpreter]typename: " + env.getTypeName() + " " + value.getValue() + " " + expr.name);
+        reporter.log("[INFO in Interpreter]typename: " + env.getTypeName() + " " + value.getValue() + " " + expr.name);
         environment.assign(expr.name, value.getValue(), env.getTypeName());
         return value;
     }
@@ -187,7 +193,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
             Object valueObj = evaluate(stmt.initializer);
             TypedValue typedValue = convertToTypedValue(valueObj);
             value = typedValue.getValue();
-            Jam.log("[INFO in Interpreter] in visitVarStmt, value is: " + value + " " + stmt.typeName);
+            reporter.log("[INFO in Interpreter] in visitVarStmt, value is: " + value + " " + stmt.typeName);
         }
         environment.define(stmt.name.lexeme, value, stmt.typeName);
         return null;

@@ -6,14 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 public class Lexer {
-    private final String source;
-    private final List<Token> tokens = new ArrayList<>();
-    private int start = 0;
-    private int current = 0;
-    private int line = 1;
-    // FIXME:
-    private boolean isJavaCode = false;
-//    private boolean isJavaCode = true;
     private static final Map<String, TokenType> keywords;
 
     static {
@@ -34,8 +26,18 @@ public class Lexer {
         keywords.put("include", TokenType.INCLUDE);
     }
 
-    public Lexer(String source) {
+    private final String source;
+    private final Reporter reporter;
+    private final List<Token> tokens = new ArrayList<>();
+    private int start = 0;
+    private int current = 0;
+    private int line = 1;
+    // FIXME:
+    private boolean isJavaCode = false;
+//    private boolean isJavaCode = true;
+    public Lexer(String source, Reporter reporter) {
         this.source = source;
+        this.reporter = reporter;
     }
 
     List<Token> scanTokens() {
@@ -46,9 +48,7 @@ public class Lexer {
         }
 
         if (isJavaCode) {
-            // FIXME:
-            Jam.error(line, "Unterminated Java code block.");
-            // System.out.println("[WARNING | TODO] Unterminated Java code block.");
+            reporter.error(line, "Unterminated Java code block.");
         }
 
         tokens.add(new Token(TokenType.EOF, "", null, line));
@@ -180,14 +180,14 @@ public class Lexer {
                     if (peek() == '|') {
                         addToken(TokenType.OR);
                     } else {
-                        Jam.error(line, "Unexpected character: " + c );
+                        reporter.error(line, "Unexpected character: " + c );
                     }
                     break;
                 case '&':
                     if (peek() == '&') {
                         addToken(TokenType.AND);
                     } else {
-                        Jam.error(line, "Unexpected character: " + c );
+                        reporter.error(line, "Unexpected character: " + c );
                     }
                     break;
                 default:
@@ -196,17 +196,27 @@ public class Lexer {
                     } else if (isAlpha(c)) {
                         identifier();
                     } else {
-                        Jam.error(line, "Unexpected character: " + c );
+                        reporter.error(line, "Unexpected character: " + c );
                     }
             }
         }
     }
 
     private void character() {
-        char c = peek();
-        advance();
-        if (peek() != '\'')
-            Jam.error(line, "Unterminated string.");
+        // The character
+        char c = advance();
+        if (c == '\'') {
+            reporter.error(line, "Invalid. Character length should be equal to 1.");
+            // Check termination
+        }
+        if (peek() != '\'') {
+            while (peek() != '\'' && !isAtEnd()) {
+                if (peek() == '\n') line++;
+                advance();
+            }
+            reporter.error(line, "Unterminated character.");
+            if (isAtEnd()) return;
+        }
 
         // The closing '.
         advance();
@@ -223,7 +233,7 @@ public class Lexer {
         }
 
         if (isAtEnd()) {
-            Jam.error(line, "Unterminated string.");
+            reporter.error(line, "Unterminated string.");
             return;
         }
 

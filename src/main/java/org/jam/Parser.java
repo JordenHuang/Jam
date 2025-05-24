@@ -8,11 +8,14 @@ import java.util.List;
 
 public class Parser {
     private static class ParseError extends RuntimeException {}
+
     private final List<Token> tokens;
+    private final Reporter reporter;
     private int current = 0;
 
-    public Parser(List<Token> tokens) {
+    public Parser(List<Token> tokens, Reporter reporter) {
         this.tokens = tokens;
+        this.reporter = reporter;
     }
 
     public List<Stmt> parse() {
@@ -188,7 +191,7 @@ public class Parser {
                 return new AssignmentNode(name, value);
             }
 
-            Jam.error(equals, "Invalid assignment target.");
+            reporter.error(equals, "Invalid assignment target.");
         }
 
         return expr;
@@ -348,7 +351,7 @@ public class Parser {
     }
 
     private ParseError error(Token token, String message) {
-        Jam.error(token, message);
+        reporter.error(token, message);
         return new ParseError();
     }
 

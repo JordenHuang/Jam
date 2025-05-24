@@ -2,8 +2,14 @@ package org.jam;
 
 // Reference:
 // - https://craftinginterpreters.com/scanning.html
-// - https://www.youtube.com/watch?v=4oQ-ZPaQs3k&list=PL_2VhOvlMk4UHGqYCLWc6GO8FaPl8fQTh&index=2
 // - https://craftinginterpreters.com/representing-code.html
+// - https://www.youtube.com/watch?v=4oQ-ZPaQs3k&list=PL_2VhOvlMk4UHGqYCLWc6GO8FaPl8fQTh&index=2
+
+// Steps:
+// 1. Tokenize
+// 2. Parsing
+// 3. Evaluating
+// 4. Output
 
 import org.jam.nodes.*;
 
@@ -16,121 +22,112 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class Jam {
-    public static boolean debug = false;
-//    public static boolean debug = true;
-    public static void log(String msg) {
-        if (debug) System.out.println(msg);
-    }
-    public static void setDebug(boolean value) {
-        debug = value;
-    }
+    private Reporter reporter;
+    private List<Token> tokens;
+    private List<Stmt> statements;
 
-    static boolean hadError;
-    static boolean hadRuntimeError = false;
-
-    static void error(int line, String message) {
-        report(line, "", message);
+    public Jam() {
+        reporter = new Reporter();
     }
 
-    private static void report(int line, String where, String message) {
-        System.err.println("[line " + line + "] Error" + where + ": " + message);
-        hadError = true;
+    public List<Token> getTokens() {
+        return tokens;
     }
 
-    static void error(Token token, String message) {
-        if (token.type == TokenType.EOF) {
-            report(token.line, " at end", message);
-        } else {
-            report(token.line, " at '" + token.lexeme + "'", message);
+    public List<Stmt> getStatements() {
+        return statements;
+    }
+
+    public void printTokens() {
+        for (Token token : tokens) {
+            System.out.println(token);
         }
     }
-    static void runtimeError(RuntimeError error) {
-        System.err.println(error.getMessage() + " [line " + error.token.line + "]");
-        hadRuntimeError = true;
+
+    public void renderTemplate(String path) {
+        try {
+            byte[] bytes = Files.readAllBytes(Paths.get(path));
+            run(new String(bytes, Charset.defaultCharset()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    private static void runFile(String path) throws IOException {
+    public void runFile(String path) throws IOException {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
         run(new String(bytes, Charset.defaultCharset()));
         // Indicate an error in the exit code.
-        if (hadError) System.exit(65);
-        if (hadRuntimeError) System.exit(70);
+        if (reporter.hadError) System.exit(65);
+        if (reporter.hadRuntimeError) System.exit(70);
     }
-    private static void runPrompt() throws IOException {
+
+    public void runInteractiveShell() throws IOException {
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);
 
         // TODO: remove below
-        String[] testCodes = new String[]{
-                "",
-//                "<tr> {% int i = 1; while ( i < 3) {  i  i = i+1;} %} </tr>",
-                "<tr> {% for (int i = 1; i < 10; i=i+1) { %} <th>{% i %}</th> {% } %} </tr>",
-//                "<p>{%int i = 0; double j = 1.0; i+j%}</p>",
-//                "{%int i = -1; i%}",
-        };
-        for (String code : testCodes) {
-            System.out.println("> " + code);
-            run(code);
-        }
 
+        System.out.print("Jam interactive shell\n");
+        System.out.print("Type \"exit\" to exit.");
         for (;;) {
-            System.out.print("> ");
+            System.out.print("\n> ");
             String line = reader.readLine();
             if (line.equals("exit")) break;
             if (line.isEmpty()) continue;
             run(line);
-            hadError = false;
+            reporter.hadError = false;
+            reporter.hadRuntimeError = false;
         }
     }
-    private static void run(String source) {
-        Lexer lexer = new Lexer(source);
-        List<Token> tokens = lexer.scanTokens();
-        Interpreter interpreter = new Interpreter();
 
-        // For now, just print the tokens.
-//        for (Token token : tokens) {
-//            System.out.println(token);
-//        }
+    public void runBatchPrompt(String[] prompts) {
+//        String[] testCodes = new String[]{
+//                "",
+//                "<tr> {% int i = 1; while ( i < 3) {  i  i = i+1;} %} </tr>",
+//                "<tr> {% for (int i = 1; i < 10; i=i+1) { %} <th>{% i %}</th> {% } %} </tr>",
+//                "<p>{%int i = 0; double j = 1.0; i+j%}</p>",
+//                "{%int i = -1; i%}",
+//        };
+        int i = 0;
+        for (String prompt : prompts) {
+            System.out.printf("%2d> %s\n", i, prompt);
+            run(prompt);
+        }
+    }
 
-//        Parser<String> parserString = new Parser<String>(tokens);
-//        Expr<String> expressionString = parserString.parse();
+    public void run(String source) {
+        Lexer lexer = new Lexer(source, reporter);
+        tokens = lexer.scanTokens();
 
-//        // Stop if there was a syntax error.
-//        if (hadError) {
-//            System.out.println();
-//            return;
-//        }
-//        System.out.println("[INFO] Ast printer:");
-//        System.out.println(new AstPrinter().print(expressionString));
-
-
-        Parser parser = new Parser(tokens);
-//        Expr<Object> expression = parser.parse();
-        List<Stmt> statements = parser.parse();
+        Parser parser = new Parser(tokens, reporter);
+        statements = parser.parse();
+        Interpreter interpreter = new Interpreter(reporter);
 
         // Stop if there was a syntax error.
-        if (hadError) {
-            System.out.println("[ERROR] HAD ERROR");
+        if (reporter.hadError) {
+            System.err.println("[ERROR] Error happens during scanning or parsing, abort.");
             return;
         }
 
-//        interpreter.interpret(expression);
         interpreter.interpret(statements);
-
-        System.out.println();
+        if (reporter.hadRuntimeError) {
+            System.err.println("[ERROR] Error happens during evaluating, abort.");
+            return;
+        }
     }
 
     public static void main(String[] args) throws IOException {
+        Jam jam = new Jam();
         if (args.length > 1) {
-            System.out.println("Usage: jlox [script]");
+            System.out.println("Usage: jam [script]");
             System.exit(64);
         } else if (args.length == 1) {
-            runFile(args[0]);
+            jam.runFile(args[0]);
         } else {
 //            String basePath = "src/main/templates/";
 //            String templateFileName = "9x9.template";
 //            runFile(basePath + templateFileName);
-            runPrompt();
+            jam.runInteractiveShell();
         }
     }
 }
