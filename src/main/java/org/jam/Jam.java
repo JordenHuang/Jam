@@ -69,10 +69,10 @@ public class Jam {
         }
     }
 
-    private void addToEnv() {
 
+    private void clearEnv() {
+        if (env != null) env = new Environment();
     }
-
 
     public void runFile(String path) throws IOException {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
@@ -96,6 +96,7 @@ public class Jam {
             run(line);
             reporter.hadError = false;
             reporter.hadRuntimeError = false;
+            clearEnv();
         }
     }
 

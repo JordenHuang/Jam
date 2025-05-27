@@ -12,7 +12,5 @@ public class Main {
         context.put("title", "9x9 table");
         jam.renderTemplate(basePath.concat(templateFileName), context);
 
-//        String templateFileName = "test.jam";
-//        jam.renderTemplate(basePath.concat(templateFileName), context);
     }
 }
