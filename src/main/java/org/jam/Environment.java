@@ -40,7 +40,12 @@ public class Environment {
         throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
     }
 
-    void define(String name, Object value, String typeName) {
-        values.put(name, new EnvironmentField(value, typeName));
+    public void define(Token name, Object value, String typeName) {
+        if (values.containsKey(name.lexeme)) throw new RuntimeError(name, "Redefined variable: " + name.lexeme);
+        values.put(name.lexeme, new EnvironmentField(value, typeName));
+    }
+
+    public void addToEnv(String name, Object value) {
+        values.put(name, new EnvironmentField(value, value.getClass().getSimpleName()));
     }
 }

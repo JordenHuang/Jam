@@ -18,11 +18,11 @@ public class TypedValue {
     }
 
     public boolean isInteger() {
-        return "Int_type".equals(typeName);
+        return "Integer".equals(typeName);
     }
 
     public boolean isDouble() {
-        return "Double_type".equals(typeName);
+        return "Double".equals(typeName);
     }
 
     public boolean isNumeric() {

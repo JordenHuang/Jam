@@ -56,7 +56,15 @@ public class Parser {
 
     private Stmt varDeclaration() {
         Token typeToken = previous();
-        String typeName = Token.convertTypeToString(typeToken.type);
+        String typeName;// = Token.convertTypeToString(typeToken.type);
+        switch (typeToken.type) {
+            case INT_TYPE -> typeName = "Integer";
+            case DOUBLE_TYPE -> typeName = "Double";
+            case CHAR_TYPE -> typeName = "Character";
+            case STRING_TYPE -> typeName = "String";
+            default -> typeName = typeToken.lexeme;
+        }
+        reporter.log("typename: " + typeName);
 
         Token name = consume(TokenType.IDENTIFIER, "Expect variable name.");
 

@@ -10,20 +10,24 @@ public class Lexer {
 
     static {
         keywords = new HashMap<>();
-        keywords.put("int"    , TokenType.INT_TYPE);
-        keywords.put("double" , TokenType.DOUBLE_TYPE);
-        keywords.put("char"   , TokenType.CHAR_TYPE);
-        keywords.put("boolean", TokenType.BOOLEAN_TYPE);
-        keywords.put("String" , TokenType.STRING_TYPE);
-        keywords.put("null"   , TokenType.NULL);
-        keywords.put("true"   , TokenType.TRUE);
-        keywords.put("false"  , TokenType.FALSE);
-        keywords.put("if"     , TokenType.IF);
-        keywords.put("else"   , TokenType.ELSE);
-        keywords.put("for"    , TokenType.FOR);
-        keywords.put("while"  , TokenType.WHILE);
-        keywords.put("return" , TokenType.RETURN);
-        keywords.put("include", TokenType.INCLUDE);
+        keywords.put("int"      , TokenType.INT_TYPE);
+        keywords.put("double"   , TokenType.DOUBLE_TYPE);
+        keywords.put("char"     , TokenType.CHAR_TYPE);
+        keywords.put("boolean"  , TokenType.BOOLEAN_TYPE);
+        keywords.put("Integer"  , TokenType.INT_TYPE);
+        keywords.put("Double"   , TokenType.DOUBLE_TYPE);
+        keywords.put("Character", TokenType.CHAR_TYPE);
+        keywords.put("Boolean"  , TokenType.BOOLEAN_TYPE);
+        keywords.put("String"   , TokenType.STRING_TYPE);
+        keywords.put("null"     , TokenType.NULL);
+        keywords.put("true"     , TokenType.TRUE);
+        keywords.put("false"    , TokenType.FALSE);
+        keywords.put("if"       , TokenType.IF);
+        keywords.put("else"     , TokenType.ELSE);
+        keywords.put("for"      , TokenType.FOR);
+        keywords.put("while"    , TokenType.WHILE);
+        keywords.put("return"   , TokenType.RETURN);
+        keywords.put("include"  , TokenType.INCLUDE);
     }
 
     private final String source;

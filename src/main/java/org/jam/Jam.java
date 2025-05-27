@@ -19,14 +19,18 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class Jam {
+    Environment env;
     private Reporter reporter;
     private List<Token> tokens;
     private List<Stmt> statements;
 
     public Jam() {
+        env = new Environment();
         reporter = new Reporter();
     }
 
@@ -53,6 +57,23 @@ public class Jam {
         }
     }
 
+    public void renderTemplate(String path, Map<String, Object> context) {
+        try {
+            for (Map.Entry<String, Object> pair : context.entrySet()) {
+                env.addToEnv(pair.getKey(), pair.getValue());
+            }
+            byte[] bytes = Files.readAllBytes(Paths.get(path));
+            run(new String(bytes, Charset.defaultCharset()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void addToEnv() {
+
+    }
+
+
     public void runFile(String path) throws IOException {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
         run(new String(bytes, Charset.defaultCharset()));
@@ -64,8 +85,6 @@ public class Jam {
     public void runInteractiveShell() throws IOException {
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);
-
-        // TODO: remove below
 
         System.out.print("Jam interactive shell\n");
         System.out.print("Type \"exit\" to exit.");
@@ -101,7 +120,7 @@ public class Jam {
 
         Parser parser = new Parser(tokens, reporter);
         statements = parser.parse();
-        Interpreter interpreter = new Interpreter(reporter);
+        Interpreter interpreter = new Interpreter(env, reporter);
 
         // Stop if there was a syntax error.
         if (reporter.hadError) {
@@ -125,7 +144,7 @@ public class Jam {
             jam.runFile(args[0]);
         } else {
 //            String basePath = "src/main/templates/";
-//            String templateFileName = "9x9.template";
+//            String templateFileName = "9x9.jam";
 //            runFile(basePath + templateFileName);
             jam.runInteractiveShell();
         }

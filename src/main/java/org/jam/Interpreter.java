@@ -5,10 +5,11 @@ import org.jam.nodes.*;
 import java.util.List;
 
 public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
-    private Environment environment = new Environment();
+    private Environment environment;
     private final Reporter reporter;
 
-    public Interpreter(Reporter reporter) {
+    public Interpreter(Environment env, Reporter reporter) {
+        this.environment = env;
         this.reporter = reporter;
     }
 
@@ -29,12 +30,12 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
 
         switch (expr.operator.type) {
             case BANG:
-                return new TypedValue(!isBoolean(right.getValue()), "Boolean_type");
+                return new TypedValue(!isBoolean(right.getValue()), "Boolean");
             case MINUS:
                 if (right.isInteger()) {
-                    return new TypedValue(-right.asInt(), "Int_type");
+                    return new TypedValue(-right.asInt(), "Integer");
                 } else if (right.isNumeric()) {
-                    return new TypedValue(-right.asDouble(), "Double_type");
+                    return new TypedValue(-right.asDouble(), "Double");
                 } else {
                     throw new RuntimeError(expr.operator, "Operand must be a number.");
                 }
@@ -57,48 +58,48 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
             case PLUS:
                 if (left.isNumeric() && right.isNumeric()) {
                     if (left.isInteger() && right.isInteger()) {
-                        return new TypedValue(left.asInt() + right.asInt(), "Int_type");
+                        return new TypedValue(left.asInt() + right.asInt(), "Integer");
                     } else {
-                        return new TypedValue(left.asDouble() + right.asDouble(), "Double_type");
+                        return new TypedValue(left.asDouble() + right.asDouble(), "Double");
                     }
                 }
 
                 if (left.getValue() instanceof String && right.getValue() instanceof String) {
-                    return new TypedValue((String)left.getValue() + (String)right.getValue(), "String_type");
+                    return new TypedValue((String)left.getValue() + (String)right.getValue(), "String");
                 }
                 throw new RuntimeError(expr.operator, "Operands must be two numbers or two strings.");
             case MINUS:
                 checkNumberOperands(expr.operator, left, right);
                 if (left.isInteger() && right.isInteger()) {
-                    return new TypedValue(left.asInt() - right.asInt(), "Int_type");
+                    return new TypedValue(left.asInt() - right.asInt(), "Integer");
                 } else {
-                    return new TypedValue(left.asDouble() - right.asDouble(), "Double_type");
+                    return new TypedValue(left.asDouble() - right.asDouble(), "Double");
                 }
             case STAR:
                 checkNumberOperands(expr.operator, left, right);
                 if (left.isInteger() && right.isInteger()) {
-                    return new TypedValue(left.asInt() * right.asInt(), "Int_type");
+                    return new TypedValue(left.asInt() * right.asInt(), "Integer");
                 } else {
-                    return new TypedValue(left.asDouble() * right.asDouble(), "Double_type");
+                    return new TypedValue(left.asDouble() * right.asDouble(), "Double");
                 }
             case SLASH:
                 checkNumberOperands(expr.operator, left, right);
                 // Division typically returns a floating-point result
-                return new TypedValue(left.asDouble() / right.asDouble(), "Double_type");
+                return new TypedValue(left.asDouble() / right.asDouble(), "Double");
             case GREATER:
                 checkNumberOperands(expr.operator, left, right);
-                return new TypedValue(left.asDouble() > right.asDouble(), "Boolean_type");
+                return new TypedValue(left.asDouble() > right.asDouble(), "Boolean");
             case GREATER_EQUAL:
                 checkNumberOperands(expr.operator, left, right);
-                return new TypedValue(left.asDouble() >= right.asDouble(), "Boolean_type");
+                return new TypedValue(left.asDouble() >= right.asDouble(), "Boolean");
             case LESS:
                 checkNumberOperands(expr.operator, left, right);
-                return new TypedValue(left.asDouble() < right.asDouble(), "Boolean_type");
+                return new TypedValue(left.asDouble() < right.asDouble(), "Boolean");
             case LESS_EQUAL:
                 checkNumberOperands(expr.operator, left, right);
-                return new TypedValue(left.asDouble() <= right.asDouble(), "Boolean_type");
-            case BANG_EQUAL: return new TypedValue(!isEqual(left.getValue(), right.getValue()), "Boolean_type");
-            case EQUAL_EQUAL: return new TypedValue(isEqual(left.getValue(), right.getValue()), "Boolean_type");
+                return new TypedValue(left.asDouble() <= right.asDouble(), "Boolean");
+            case BANG_EQUAL: return new TypedValue(!isEqual(left.getValue(), right.getValue()), "Boolean");
+            case EQUAL_EQUAL: return new TypedValue(isEqual(left.getValue(), right.getValue()), "Boolean");
         }
 
         // Unreachable.
@@ -111,14 +112,14 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         reporter.log("[INFO in Interpreter] Literal, value: " + expr.value);
         if (expr.value instanceof Number) {
             if (expr.value instanceof Integer) {
-                return new TypedValue(expr.value, "Int_type");
+                return new TypedValue(expr.value, "Integer");
             } else {
-                return new TypedValue(expr.value, "Double_type");
+                return new TypedValue(expr.value, "Double");
             }
         } else if (expr.value instanceof String) {
-            return new TypedValue(expr.value, "String_type");
+            return new TypedValue(expr.value, "String");
         } else if (expr.value instanceof Boolean) {
-            return new TypedValue(expr.value, "Boolean_type");
+            return new TypedValue(expr.value, "Boolean");
         }
         return expr.value;
     }
@@ -195,7 +196,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
             value = typedValue.getValue();
             reporter.log("[INFO in Interpreter] in visitVarStmt, value is: " + value + " " + stmt.typeName);
         }
-        environment.define(stmt.name.lexeme, value, stmt.typeName);
+        environment.define(stmt.name, value, stmt.typeName);
         return null;
     }
 
@@ -219,11 +220,11 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         if (typeName.equals("Identifier")) {
             System.out.print("Identifier: ");
             System.out.print(value.getValue());
-        } else if (typeName.equals("Int_type")) {
+        } else if (typeName.equals("Integer")) {
             System.out.print(value.asInt());
-        } else if (typeName.equals("Double_type")) {
+        } else if (typeName.equals("Double")) {
             System.out.print(value.asDouble());
-        } else if (typeName.equals("String_type")) {
+        } else if (typeName.equals("String")) {
             System.out.print(value.getValue());
         } else {
             System.out.print(value.getValue());
@@ -285,16 +286,16 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
             return new TypedValue(field.getValue(), field.getTypeName());
         } else if (obj instanceof Number) {
             if (obj instanceof Integer) {
-                return new TypedValue(obj, "Int_type");
+                return new TypedValue(obj, "Integer");
             } else {
-                return new TypedValue(obj, "Double_type");
+                return new TypedValue(obj, "Double");
             }
         } else if (obj instanceof String) {
-            return new TypedValue(obj, "String_type");
+            return new TypedValue(obj, "String");
         } else if (obj instanceof Boolean) {
-            return new TypedValue(obj, "Boolean_type");
+            return new TypedValue(obj, "Boolean");
         } else {
-            return new TypedValue(obj, "Object_type");
+            return new TypedValue(obj, "Object");
         }
     }
 }
