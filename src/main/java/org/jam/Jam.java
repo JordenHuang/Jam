@@ -20,9 +20,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Jam {
     Environment env;
@@ -79,13 +77,16 @@ public class Jam {
 
     public void runFile(String path) throws IOException {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
-        run(new String(bytes, Charset.defaultCharset()));
+        byte[] result = run(new String(bytes, Charset.defaultCharset()));
+        IOutput outputMethod = new FileOutput(path);
+        outputMethod.write(result);
+
         // Indicate an error in the exit code.
         if (reporter.hadError) System.exit(65);
         if (reporter.hadRuntimeError) System.exit(70);
     }
 
-    public void runInteractiveShell() throws IOException {
+    public void runInteractiveShell(IOutput outputMethod) throws IOException {
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);
 
@@ -96,14 +97,15 @@ public class Jam {
             String line = reader.readLine();
             if (line.equals("exit")) break;
             if (line.isEmpty()) continue;
-            run(line);
+            byte[] result = run(line);
+            outputMethod.write(result);
             reporter.hadError = false;
             reporter.hadRuntimeError = false;
             clearEnv();
         }
     }
 
-    public void runBatchPrompt(String[] prompts) {
+    public void runBatchPrompt(String[] prompts, IOutput outputMethod) {
 //        String[] testCodes = new String[]{
 //                "",
 //                "<tr> {% int i = 1; while ( i < 3) {  i  i = i+1;} %} </tr>",
@@ -114,7 +116,8 @@ public class Jam {
         int i = 0;
         for (String prompt : prompts) {
             System.out.printf("%2d> %s\n", i, prompt);
-            run(prompt);
+            byte[] result = run(prompt);
+            outputMethod.write(result);
         }
     }
 
@@ -151,7 +154,7 @@ public class Jam {
 //            String basePath = "src/main/templates/";
 //            String templateFileName = "9x9.jam";
 //            runFile(basePath + templateFileName);
-            jam.runInteractiveShell();
+            jam.runInteractiveShell(new StandardOutput());
         }
     }
 }
