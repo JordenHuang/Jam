@@ -12,6 +12,7 @@ package org.jam;
 // 4. Output
 
 import org.jam.nodes.*;
+import org.jam.outputType.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -48,22 +49,24 @@ public class Jam {
         }
     }
 
-    public void renderTemplate(String path) {
+    public void renderTemplate(String path, IOutput outputMethod) {
         try {
             byte[] bytes = Files.readAllBytes(Paths.get(path));
-            run(new String(bytes, Charset.defaultCharset()));
+            byte[] result = run(new String(bytes, Charset.defaultCharset()));
+            outputMethod.write(result);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void renderTemplate(String path, Map<String, Object> context) {
+    public void renderTemplate(String path, IOutput outputMethod, Map<String, Object> context) {
         try {
             for (Map.Entry<String, Object> pair : context.entrySet()) {
                 env.addToEnv(pair.getKey(), pair.getValue());
             }
             byte[] bytes = Files.readAllBytes(Paths.get(path));
-            run(new String(bytes, Charset.defaultCharset()));
+            byte[] result = run(new String(bytes, Charset.defaultCharset()));
+            outputMethod.write(result);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -115,7 +118,7 @@ public class Jam {
         }
     }
 
-    public void run(String source) {
+    public byte[] run(String source) {
         Lexer lexer = new Lexer(source, reporter);
         tokens = lexer.scanTokens();
 
@@ -126,14 +129,15 @@ public class Jam {
         // Stop if there was a syntax error.
         if (reporter.hadError) {
             System.err.println("[ERROR] Error happens during scanning or parsing, abort.");
-            return;
+            return null;
         }
 
-        interpreter.interpret(statements);
+        byte[] result = interpreter.interpret(statements);
         if (reporter.hadRuntimeError) {
             System.err.println("[ERROR] Error happens during evaluating, abort.");
-            return;
+            return null;
         }
+        return result;
     }
 
     public static void main(String[] args) throws IOException {

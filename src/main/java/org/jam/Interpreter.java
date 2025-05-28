@@ -7,13 +7,15 @@ import java.util.List;
 public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
     private Environment environment;
     private final Reporter reporter;
+    private StringBuilder result;
 
     public Interpreter(Environment env, Reporter reporter) {
         this.environment = env;
         this.reporter = reporter;
+        this.result = new StringBuilder();
     }
 
-    void interpret(List<Stmt> statements) {
+    public byte[] interpret(List<Stmt> statements) {
         try {
             for (Stmt statement : statements) {
                 execute(statement);
@@ -21,6 +23,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         } catch (RuntimeError error) {
             reporter.runtimeError(error);
         }
+        return result.toString().getBytes();
     }
 
     @Override
@@ -42,7 +45,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         }
 
         // Unreachable.
-        System.out.println("[ERROR] UNREACHABLE, in visitUnaryNode");
+        System.err.println("[ERROR] UNREACHABLE, in visitUnaryNode");
         return null;
     }
 
@@ -103,7 +106,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         }
 
         // Unreachable.
-        System.out.println("[ERROR] UNREACHABLE, in visitBinaryNode");
+        System.err.println("[ERROR] UNREACHABLE, in visitBinaryNode");
         return null;
     }
 
@@ -218,16 +221,17 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         
         String typeName = value.getTypeName();
         if (typeName.equals("Identifier")) {
+            // TODO: check this
             System.out.print("Identifier: ");
-            System.out.print(value.getValue());
+            result.append(value.getValue());
         } else if (typeName.equals("Integer")) {
-            System.out.print(value.asInt());
+            result.append(value.asInt());
         } else if (typeName.equals("Double")) {
-            System.out.print(value.asDouble());
+            result.append(value.asDouble());
         } else if (typeName.equals("String")) {
-            System.out.print(value.getValue());
+            result.append(value.getValue());
         } else {
-            System.out.print(value.getValue());
+            result.append(value.getValue());
         }
         return null;
     }

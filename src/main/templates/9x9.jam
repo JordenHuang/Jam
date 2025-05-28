@@ -3,44 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <title>{% title %}</title>
-
     <style>
-    table {
-      font-family: arial, sans-serif;
-      border-collapse: collapse;
-      width: 100%;
-    }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+            padding: 40px;
+        }
 
-    td, th {
-      border: 1px solid #dddddd;
-      text-align: left;
-      padding: 8px;
-    }
+        table {
+            font-family: 'Courier New', Courier, monospace;
+            border-collapse: collapse;
+            width: 80%;
+            margin: 0 auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
 
-    tr:nth-child(even) {
-      background-color: #dddddd;
-    }
+        th, td {
+            border: 1px solid #e0e0e0;
+            text-align: center;
+            padding: 12px;
+            transition: background-color 0.3s;
+            font-size: {% fontSize %}px;
+        }
+
+        th {
+            background-color: #007acc;
+            color: white;
+            font-weight: bold;
+            font-size: larger;
+        }
+
+        td:first-child {
+            background-color: #ffffff;
+            font-weight: bold;
+            font-size: larger;
+        }
+
+        tr:hover td {
+            background-color: #e6f7ff;
+        }
     </style>
 </head>
 
 <body>
-    <table style="width:80%">
+    <h2 style="text-align: center;">{% title %}</h2>
+
+    <table>
         <tr>
             {% for (int i = 0; i < 10; i=i+1) { %}
-              {% if (i == 0) { %}
-                <th>{% " " %}</th>
-              {% } else { %}
-                <th>{% i %}</th>
-              {% } %}
+                {% if (i == 0) { %}
+                  <th>{% "×" %}</th>
+                {% } else { %}
+                  <th>{% i %}</th>
+                {% } %}
             {% } %}
         </tr>
         {% for (int i = 1; i < 10; i=i+1) { %}
-        <tr>
-            <td>{% i %}</td>
-            {% for (int j = 1; j < 10; j=j+1) { %}
-            <td>{% i*j %}</td>
-            {% } %}
-        </tr>
+            <tr>
+                <td>{% i %}</td>
+                {% for (int j = 1; j < 10; j=j+1) { %}
+                    <td>{% i*j %}</td>
+                {% } %}
+            </tr>
         {% } %}
     </table>
 </body>
