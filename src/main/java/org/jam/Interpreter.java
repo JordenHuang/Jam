@@ -2,7 +2,11 @@ package org.jam;
 
 import org.jam.nodes.*;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
     private Environment environment;
@@ -165,6 +169,90 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         return value;
     }
 
+    // Written by AI
+    @Override
+    public Object visitGetExpr(GetNode<Object> expr) {
+        Object objectObj = evaluate(expr.object);
+        String fieldName = expr.name.lexeme;
+        
+        // Handle TypedValue objects
+        if (objectObj instanceof TypedValue) {
+            TypedValue typedValue = (TypedValue)objectObj;
+            Object object = typedValue.getValue();
+            
+            // Case 1: Map
+            if (object instanceof Map) {
+                Map<String, Object> map = (Map<String, Object>)object;
+                if (map.containsKey(fieldName)) {
+                    Object value = map.get(fieldName);
+                    return new TypedValue(value, getTypeNameForValue(value));
+                }
+                throw new RuntimeError(expr.name, "Undefined property '" + fieldName + "'.");
+            }
+            
+            // Case 2: JavaBean - try getter
+            try {
+                // e.g., "name" -> "getName"
+                String methodName = "get" + capitalize(fieldName);
+                Method method = object.getClass().getMethod(methodName);
+                Object result = method.invoke(object);
+                return new TypedValue(result, getTypeNameForValue(result));
+            } catch (NoSuchMethodException ignored) {
+                // Fall through to try field directly
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to access getter for field '" + expr.name.lexeme + "': " + e.getMessage());
+            }
+
+            // Case 3: Try direct public field access
+            try {
+                Field field = object.getClass().getField(fieldName);
+                Object result = field.get(object);
+                return new TypedValue(result, getTypeNameForValue(result));
+            } catch (NoSuchFieldException e) {
+                throw new RuntimeError(expr.name, "Field '" + fieldName + "' not found in object of type " + object.getClass().getSimpleName());
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to access field '" + fieldName + "': " + e.getMessage());
+            }
+        } else {
+            // Handle regular objects (non-TypedValue)
+            Object object = objectObj;
+            
+            // Case 1: Map
+            if (object instanceof Map) {
+                Map<String, Object> map = (Map<String, Object>)object;
+                if (map.containsKey(fieldName)) {
+                    Object value = map.get(fieldName);
+                    return new TypedValue(value, getTypeNameForValue(value));
+                }
+                throw new RuntimeError(expr.name, "Undefined property '" + fieldName + "'.");
+            }
+            
+            // Case 2: JavaBean - try getter
+            try {
+                // e.g., "name" -> "getName"
+                String methodName = "get" + capitalize(fieldName);
+                Method method = object.getClass().getMethod(methodName);
+                Object result = method.invoke(object);
+                return new TypedValue(result, getTypeNameForValue(result));
+            } catch (NoSuchMethodException ignored) {
+                // Fall through to try field directly
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to access getter for field '" + expr.name.lexeme + "': " + e.getMessage());
+            }
+
+            // Case 3: Try direct public field access
+            try {
+                Field field = object.getClass().getField(fieldName);
+                Object result = field.get(object);
+                return new TypedValue(result, getTypeNameForValue(result));
+            } catch (NoSuchFieldException e) {
+                throw new RuntimeError(expr.name, "Field '" + fieldName + "' not found in object of type " + object.getClass().getSimpleName());
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to access field '" + fieldName + "': " + e.getMessage());
+            }
+        }
+    }
+
     @Override
     public Void visitBlockStmt(BlockNode<Void> stmt) {
         executeBlock(stmt.statements, new Environment(environment));
@@ -301,5 +389,19 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         } else {
             return new TypedValue(obj, "Object");
         }
+    }
+    
+    private String getTypeNameForValue(Object value) {
+        if (value instanceof Integer) return "Integer";
+        if (value instanceof Double) return "Double";
+        if (value instanceof String) return "String";
+        if (value instanceof Boolean) return "Boolean";
+        if (value instanceof Map) return "Object";
+        return "Unknown_type";
+    }
+
+    private static String capitalize(String str) {
+        if (str == null || str.isEmpty()) return str;
+        return Character.toUpperCase(str.charAt(0)) + str.substring(1);
     }
 }

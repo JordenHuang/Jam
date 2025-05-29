@@ -43,7 +43,9 @@ assignment       → left_hand_side assignment_op assignment ;
 // TODO
 left_hand_side   → expr_name | field_access | array_access ;
 // TODO
-assignment_op    → = | *= | /= | %= | += | -= | <<= | >>= | >>>= | &= | ^= | |= ;
+assignment_op    → = | *= | /= | %= | += | -= ;
+// | <<= | >>= | >>>= | &= | ^= | |= ; // Not plan to implement now
+
 // TODO
 expr_name        → IDENTIFIER
                  | ambiguous_name "." IDENTIFIER ;

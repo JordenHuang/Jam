@@ -7,5 +7,6 @@ public interface ExprVisitor<T> {
     T visitGroupingNode(GroupingNode<T> expr);
     T visitVariableExpr(VariableNode<T> expr);
     T visitAssignmentExpr(AssignmentNode<T> expr);
-    T visitLogicalExpr(LogicalNode<T> visitor);
+    T visitLogicalExpr(LogicalNode<T> expr);
+    T visitGetExpr(GetNode<T> expr);
 }

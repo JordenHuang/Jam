@@ -26,8 +26,19 @@ public class Main {
         Map<String, Object> context = new HashMap<>();
         context.put("title", "9x9 table");
         context.put("fontSize", 20);
+        context.put("student", new Student(1111, "John"));
 
         jam.renderTemplate(basePath.concat(templateFileName), outputType, context);
 
+    }
+}
+
+// For testing
+class Student {
+    public int id;
+    public String name;
+    public Student(int id, String name) {
+        this.id = id;
+        this.name = name;
     }
 }
