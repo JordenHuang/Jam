@@ -118,6 +118,9 @@ public class Jam {
             System.out.printf("%2d> %s\n", i, prompt);
             byte[] result = run(prompt);
             outputMethod.write(result);
+            reporter.hadError = false;
+            reporter.hadRuntimeError = false;
+            clearEnv();
         }
     }
 

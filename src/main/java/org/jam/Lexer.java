@@ -112,14 +112,18 @@ public class Lexer {
 
 
         if (isJavaCode) {
-            // Check if Java code block ends
-            if (c == '%' && peek() == '}') {
-                c = advance();
-                isJavaCode = false;
-                return;
-            }
-
             switch (c) {
+                case '%':
+                    // Check if Java code block ends
+                    if (peek() == '}') {
+                        advance();
+                        isJavaCode = false;
+                        return;
+                    } else if (match('=')) {
+                        addToken(TokenType.PERCENT_EQUAL);
+                    } else {
+                        addToken(TokenType.PERCENT);
+                    }
                 case '(':
                     addToken(TokenType.LEFT_PAREN);
                     break;
@@ -132,17 +136,23 @@ public class Lexer {
                 case '}':
                     addToken(TokenType.RIGHT_BRACE);
                     break;
+                case '[':
+                    addToken(TokenType.LEFT_BRACKET);
+                    break;
+                case ']':
+                    addToken(TokenType.RIGHT_BRACKET);
+                    break;
                 case ',':
                     addToken(TokenType.COMMA);
                     break;
                 case '+':
-                    addToken(TokenType.PLUS);
+                    addToken(match('=') ? TokenType.PLUS_EQUAL : TokenType.PLUS);
                     break;
                 case '-':
-                    addToken(TokenType.MINUS);
+                    addToken(match('=') ? TokenType.MINUS_EQUAL : TokenType.MINUS);
                     break;
                 case '*':
-                    addToken(TokenType.STAR);
+                    addToken(match('=') ? TokenType.STAR_EQUAL : TokenType.STAR);
                     break;
                 case '.':
                     addToken(TokenType.DOT);
@@ -152,6 +162,9 @@ public class Lexer {
                     break;
                 case '!':
                     addToken(match('=') ? TokenType.BANG_EQUAL : TokenType.BANG);
+                    break;
+                case '?':
+                    addToken(TokenType.QUESTION_MARK);
                     break;
                 case '=':
                     addToken(match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL);
@@ -166,6 +179,8 @@ public class Lexer {
                     if (match('/')) {
                         // A comment goes until the end of the line.
                         while (peek() != '\n' && !isAtEnd()) advance();
+                    } else if (match('=')) {
+                        addToken(TokenType.SLASH_EQUAL);
                     } else {
                         addToken(TokenType.SLASH);
                     }

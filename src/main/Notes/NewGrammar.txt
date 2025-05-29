@@ -45,7 +45,7 @@ left_hand_side   → expr_name | field_access | array_access ;
 // TODO
 assignment_op    → = | *= | /= | %= | += | -= | <<= | >>= | >>>= | &= | ^= | |= ;
 // TODO
-expression_name  → IDENTIFIER
+expr_name        → IDENTIFIER
                  | ambiguous_name "." IDENTIFIER ;
 // TODO
 ambiguous_name   → IDENTIFIER
@@ -54,7 +54,7 @@ ambiguous_name   → IDENTIFIER
 field_access     → <primary> "." IDENTIFIER
                  | super "." IDENTIFIER ;
 // TODO
-array_access     → expression_name [ expression ] ;
+array_access     → expr_name "[" expression "]" ;
 
 logic_or       → logic_and ( "||" logic_and )* ;
 logic_and      → equality ( "&&" equality )* ;
