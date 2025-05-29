@@ -5,8 +5,10 @@ import org.jam.outputType.IOutput;
 import org.jam.outputType.StandardOutput;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UnknownFormatConversionException;
 
 public class Main {
     public static void main(String[] args) {
@@ -26,7 +28,15 @@ public class Main {
         Map<String, Object> context = new HashMap<>();
         context.put("title", "9x9 table");
         context.put("fontSize", 20);
+        String[] ss = new String[10];
+        Student[] sts = new Student[10];
+        for (int i = 0; i < ss.length; ++i) {
+            ss[i] = Integer.toString(i);
+            sts[i] = new Student(i, new String(new char[]{(char)(i+65), (char)(i+65), (char)(i+65), (char)(i+65)}));
+        }
         context.put("student", new Student(1111, "John"));
+        context.put("ss", ss);
+        context.put("sts", sts);
 
         jam.renderTemplate(basePath.concat(templateFileName), outputType, context);
 

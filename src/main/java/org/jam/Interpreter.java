@@ -169,11 +169,26 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         return value;
     }
 
-    // Written by AI
     @Override
     public Object visitGetExpr(GetNode<Object> expr) {
         Object objectObj = evaluate(expr.object);
         String fieldName = expr.name.lexeme;
+        
+        // Special case for arrays - handle length property
+        if (fieldName.equals("length")) {
+            if (objectObj instanceof TypedValue) {
+                TypedValue typedValue = (TypedValue)objectObj;
+                Object object = typedValue.getValue();
+                
+                if (object instanceof List) {
+                    return new TypedValue(((List<?>)object).size(), "Integer");
+                } else if (object instanceof Object[]) {
+                    return new TypedValue(((Object[])object).length, "Integer");
+                } else if (object instanceof String) {
+                    return new TypedValue(((String)object).length(), "Integer");
+                }
+            }
+        }
         
         // Handle TypedValue objects
         if (objectObj instanceof TypedValue) {
@@ -251,6 +266,67 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
                 throw new RuntimeException("Failed to access field '" + fieldName + "': " + e.getMessage());
             }
         }
+    }
+
+
+    @Override
+    public Object visitArrayAccessExpr(ArrayAccessNode<Object> expr) {
+        Object arrayObj = evaluate(expr.array);
+        Object indexObj = evaluate(expr.index);
+        
+        TypedValue array = convertToTypedValue(arrayObj);
+        TypedValue index = convertToTypedValue(indexObj);
+        
+        if (array.getValue() == null) {
+            throw new RuntimeError(expr.bracket, "Cannot access elements of null.");
+        }
+        
+        // Handle array access for different types
+        if (array.getValue() instanceof List) {
+            List<?> list = (List<?>) array.getValue();
+            int idx = index.asInt();
+            
+            if (idx < 0 || idx >= list.size()) {
+                throw new RuntimeError(expr.bracket, "Array index out of bounds: " + idx);
+            }
+            
+            Object value = list.get(idx);
+            return new TypedValue(value, getTypeNameForValue(value));
+        } 
+        else if (array.getValue() instanceof Object[]) {
+            Object[] objArray = (Object[]) array.getValue();
+            int idx = index.asInt();
+            
+            if (idx < 0 || idx >= objArray.length) {
+                throw new RuntimeError(expr.bracket, "Array index out of bounds: " + idx);
+            }
+            
+            Object value = objArray[idx];
+            return new TypedValue(value, getTypeNameForValue(value));
+        }
+        else if (array.getValue() instanceof String) {
+            String str = (String) array.getValue();
+            int idx = index.asInt();
+            
+            if (idx < 0 || idx >= str.length()) {
+                throw new RuntimeError(expr.bracket, "String index out of bounds: " + idx);
+            }
+            
+            return new TypedValue(String.valueOf(str.charAt(idx)), "String");
+        }
+        else if (array.getValue() instanceof Map) {
+            Map<?, ?> map = (Map<?, ?>) array.getValue();
+            Object key = index.getValue();
+            
+            if (!map.containsKey(key)) {
+                throw new RuntimeError(expr.bracket, "Key not found in map: " + key);
+            }
+            
+            Object value = map.get(key);
+            return new TypedValue(value, getTypeNameForValue(value));
+        }
+        
+        throw new RuntimeError(expr.bracket, "Cannot use array access on type: " + array.getTypeName());
     }
 
     @Override
@@ -397,6 +473,8 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         if (value instanceof String) return "String";
         if (value instanceof Boolean) return "Boolean";
         if (value instanceof Map) return "Object";
+        if (value instanceof List) return "Array";
+        if (value instanceof Object[]) return "Array";
         return "Unknown_type";
     }
 

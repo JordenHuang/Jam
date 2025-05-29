@@ -48,6 +48,12 @@
 </head>
 
 <body>
+    {% for (int i = 0; i < ss.length; i = i+1) { %}
+        {% ss[i] %}
+        <br>
+        {% sts[i].id " " sts[i].name %}
+        <br>
+    {% } %}
     <h2 style="text-align: center;">{% title %}</h2>
 
     <table>

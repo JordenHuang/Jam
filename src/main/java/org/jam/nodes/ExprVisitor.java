@@ -9,4 +9,5 @@ public interface ExprVisitor<T> {
     T visitAssignmentExpr(AssignmentNode<T> expr);
     T visitLogicalExpr(LogicalNode<T> expr);
     T visitGetExpr(GetNode<T> expr);
+    T visitArrayAccessExpr(ArrayAccessNode<T> expr);
 }

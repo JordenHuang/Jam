@@ -332,12 +332,17 @@ public class Parser {
         throw error(peek(), "Expect expression.");
     }
     
-    // Add field access support
+    // Add field access and array access support
     private Expr finishCall(Expr expr) {
         while (true) {
             if (match(TokenType.DOT)) {
                 Token name = consume(TokenType.IDENTIFIER, "Expect property name after '.'.");
                 expr = new GetNode(expr, name);
+            } else if (match(TokenType.LEFT_BRACKET)) {
+                Token bracket = previous();
+                Expr index = expression();
+                consume(TokenType.RIGHT_BRACKET, "Expect ']' after array index.");
+                expr = new ArrayAccessNode(expr, index, bracket);
             } else {
                 break;
             }

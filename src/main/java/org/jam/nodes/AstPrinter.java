@@ -45,6 +45,11 @@ public class AstPrinter implements ExprVisitor<String> {
         return null;
     }
 
+    @Override
+    public String visitArrayAccessExpr(ArrayAccessNode<String> expr) {
+        return null;
+    }
+
     public String print(Expr<String> expr) {
         return expr.accept(this);
     }
