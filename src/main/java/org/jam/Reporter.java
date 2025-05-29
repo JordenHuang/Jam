@@ -4,8 +4,8 @@ public class Reporter {
     public boolean hadError = false;
     public boolean hadRuntimeError = false;
 
-    private boolean debug = false;
-//    private static boolean debug = true;
+//    private boolean debug = false;
+    private static boolean debug = true;
 
     // Message logger methods
     public void setDebug(boolean value) {

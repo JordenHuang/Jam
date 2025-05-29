@@ -39,9 +39,7 @@ public class Parser {
     // ===== Statement Part =====
     private Stmt declaration() {
         try {
-            // TODO: Add TokenType.IDENTIFIER
-//            TokenType[] tokenTypes = new TokenType[]{TokenType.INT, TokenType.DOUBLE, TokenType.CHAR, TokenType.BOOLEAN, TokenType.STRING};
-            if (match(TokenType.INT_TYPE, TokenType.DOUBLE_TYPE, TokenType.CHAR_TYPE, TokenType.BOOLEAN_TYPE, TokenType.STRING_TYPE)) {
+            if (match(TokenType.INT_TYPE, TokenType.DOUBLE_TYPE, TokenType.CHAR_TYPE, TokenType.BOOLEAN_TYPE, TokenType.STRING_TYPE, TokenType.IDENTIFIER)) {
                 return varDeclaration();
             }
             // TODO: includeStatement
@@ -141,7 +139,7 @@ public class Parser {
         Stmt initializer;
         if (match(TokenType.SEMICOLON)) {
             initializer = null;
-        } else if (match(TokenType.INT_TYPE, TokenType.DOUBLE_TYPE, TokenType.CHAR_TYPE, TokenType.BOOLEAN_TYPE, TokenType.STRING_TYPE)) { // TODO: NOT var
+        } else if (match(TokenType.INT_TYPE, TokenType.DOUBLE_TYPE, TokenType.CHAR_TYPE, TokenType.BOOLEAN_TYPE, TokenType.STRING_TYPE, TokenType.IDENTIFIER)) {
             initializer = varDeclaration();
         } else {
             initializer = expressionStatement();

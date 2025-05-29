@@ -35,6 +35,30 @@ expression     → assignment ;
 assignment     → IDENTIFIER "=" assignment
                | logic_or ;
 
+// TODO
+assignment       → conditional_expr
+                 | assignment ;
+// TODO
+conditional_expr → logic_or
+                 | logic_or "?" expression ":" conditional_expr ;
+// TODO
+assignment       → left_hand_side assignment_op assignment ;
+// TODO
+left_hand_side   → expr_name | field_access | array_access ;
+// TODO
+assignment_op    → = | *= | /= | %= | += | -= | <<= | >>= | >>>= | &= | ^= | |= ;
+// TODO
+expression_name  → IDENTIFIER
+                 | ambiguous_name "." IDENTIFIER ;
+// TODO
+ambiguous_name   → IDENTIFIER
+                 | ambiguous_name "." IDENTIFIER ;
+// TODO
+field_access     → <primary> "." IDENTIFIER
+                 | super "." IDENTIFIER ;
+// TODO
+array_access     → expression_name [ expression ] ;
+
 logic_or       → logic_and ( "||" logic_and )* ;
 logic_and      → equality ( "&&" equality )* ;
 
@@ -45,8 +69,9 @@ factor         → unary ( ( "*" | "/" ) unary )* ;
 
 unary          → ( "!" | "-" ) unary
                | primary ;
-//                | call ;
+//               | call ; // <- TODO
 
+// TODO
 // call           → primary ( "(" arguments? ")" )* ;
 
 arguments      → expression ( "," expression )* ;
