@@ -16,6 +16,10 @@ public class FileOutput extends IOutput {
 
     public void write(byte[] content) {
         try {
+            if (content == null) {
+                System.err.println("Content is null");
+                return;
+            }
             writer.write(new String(content, Charset.defaultCharset()));
             writer.close();
         } catch (IOException e) {

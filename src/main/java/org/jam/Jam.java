@@ -125,6 +125,10 @@ public class Jam {
         Lexer lexer = new Lexer(source, reporter);
         tokens = lexer.scanTokens();
 
+        for (Token t : getTokens()) {
+            System.out.println(t);
+        }
+
         Parser parser = new Parser(tokens, reporter);
         statements = parser.parse();
         Interpreter interpreter = new Interpreter(env, reporter);
@@ -154,6 +158,12 @@ public class Jam {
 //            String basePath = "src/main/templates/";
 //            String templateFileName = "9x9.jam";
 //            runFile(basePath + templateFileName);
+            jam.runBatchPrompt(
+                    new String[]{
+                            "{%Student t = null;%}"
+                    },
+                    new StandardOutput()
+            );
             jam.runInteractiveShell(new StandardOutput());
         }
     }
