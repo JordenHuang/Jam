@@ -7,5 +7,5 @@ public interface StmtVisitor<T> {
     T visitIfStmt(IfNode<T> stmt);
     T visitWhileStmt(WhileNode<T> stmt);
     T visitHtmlStmt(HtmlNode<T> stmt);
-//    T visitIncludeStmt(IncludeNode<T> stmt);
+    T visitIncludeStmt(IncludeNode<T> stmt);
 }

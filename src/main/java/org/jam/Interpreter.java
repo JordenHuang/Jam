@@ -2,8 +2,12 @@ package org.jam;
 
 import org.jam.nodes.*;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -274,7 +278,6 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
             } catch (Exception e) {
                 throw new RuntimeException("Failed to access getter for field '" + expr.name.lexeme + "': " + e.getMessage());
             }
-
             // Case 3: Try direct public field access
             try {
                 Field field = object.getClass().getField(fieldName);
@@ -453,6 +456,21 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
             result.append(value.getValue());
         } else {
             result.append(value.getValue());
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitIncludeStmt(IncludeNode<Void> stmt) {
+        try {
+            Jam jam = new Jam(environment);
+            String filename = stmt.filename.lexeme;
+            filename = filename.substring(1, filename.length()-1);
+            byte[] bytes = Files.readAllBytes(Paths.get(filename));
+            byte[] subResult = jam.run(new String(bytes, Charset.defaultCharset()));
+            result.append(new String(subResult, Charset.defaultCharset()));
+        } catch (IOException e) {
+            throw new RuntimeError(stmt.filename, "File not found");
         }
         return null;
     }

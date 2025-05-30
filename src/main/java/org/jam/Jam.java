@@ -33,6 +33,11 @@ public class Jam {
         reporter = new Reporter();
     }
 
+    public Jam(Environment env) {
+        this.env = env;
+        reporter = new Reporter();
+    }
+
     public List<Token> getTokens() {
         return tokens;
     }

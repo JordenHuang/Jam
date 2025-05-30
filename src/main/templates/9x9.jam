@@ -69,4 +69,5 @@
             </tr>
         {% } %}
     </table>
+    {% include "src/main/templates/footer.jam"; %}
 </body>

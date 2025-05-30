@@ -43,9 +43,8 @@ public class Parser {
             if (match(TokenType.INT_TYPE, TokenType.DOUBLE_TYPE, TokenType.CHAR_TYPE, TokenType.BOOLEAN_TYPE, TokenType.STRING_TYPE)) {
                 return varDeclaration();
             }
-            // TODO: includeStatement
-//            if (match(TokenType.INCLUDE))
-//                return includeStatement();
+            if (match(TokenType.INCLUDE))
+                return includeStatement();
             return statement();
         } catch (ParseError error) {
             synchronize();
@@ -84,8 +83,18 @@ public class Parser {
         return new HtmlNode(primary());
     }
 
-    // TODO: includeStatement
-//    private Stmt includeStatement(){}
+    private Stmt includeStatement(){
+        if (!check(TokenType.STRING)) {
+            throw error(previous(), "Invalid filename to include.");
+        }
+        advance();
+        Token filename = previous();
+        // Consume the ';'s
+        do {
+            consume(TokenType.SEMICOLON, "Expect ';' after include statement.");
+        } while (check(TokenType.SEMICOLON));
+        return new IncludeNode(filename);
+    }
 
     private Stmt statement() {
         if (match(TokenType.IF)) return ifStatement();
