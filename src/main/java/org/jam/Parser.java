@@ -72,7 +72,7 @@ public class Parser {
             initializer = expression();
         }
 
-        // Consume more ';'s
+        // Consume the ';'s
         do {
             consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
         } while (check(TokenType.SEMICOLON));
@@ -138,7 +138,7 @@ public class Parser {
         Stmt initializer;
         if (match(TokenType.SEMICOLON)) {
             initializer = null;
-        } else if (match(TokenType.INT_TYPE, TokenType.DOUBLE_TYPE, TokenType.CHAR_TYPE, TokenType.BOOLEAN_TYPE, TokenType.STRING_TYPE, TokenType.IDENTIFIER)) {
+        } else if (match(TokenType.INT_TYPE, TokenType.DOUBLE_TYPE, TokenType.CHAR_TYPE, TokenType.BOOLEAN_TYPE, TokenType.STRING_TYPE, TokenType.IDENTIFIER)) { // TODO: check `TokenType.IDENTIFIER`
             initializer = varDeclaration();
         } else {
             initializer = expressionStatement();

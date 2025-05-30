@@ -4,7 +4,7 @@
 - [ ] Provide `ifDefine()` method to check if a variable is defined (or provide from the user) in the template,
       so the template can have default value for some variables, like `{% ifDefine(backgroundColor) backgroundColor else "#007acc" %}`
 - [ ] Implement the `include "something.template"` statement in code block
-- [WIP] Allow user defined types (Parser should recognize that, and Interpreter should handle that as well)
+- [x] Allow user defined types to pass to the template (Parser should recognize that, and Interpreter should handle that as well)
 
 ## Done (from recent to old)
 
