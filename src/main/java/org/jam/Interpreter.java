@@ -93,6 +93,9 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
                 checkNumberOperands(expr.operator, left, right);
                 // Division typically returns a floating-point result
                 return new TypedValue(left.asDouble() / right.asDouble(), "Double");
+            case PERCENT:
+                checkNumberOperands(expr.operator, left, right);
+                return new TypedValue(left.asInt() % right.asInt(), "Integer");
             case GREATER:
                 checkNumberOperands(expr.operator, left, right);
                 return new TypedValue(left.asDouble() > right.asDouble(), "Boolean");
@@ -160,9 +163,63 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
     @Override
     public Object visitAssignmentExpr(AssignmentNode<Object> expr) {
         EnvironmentField env = environment.get(expr.name);
+        Object targetValueObj = env.getValue();
         Object valueObj = evaluate(expr.value);
         TypedValue value = convertToTypedValue(valueObj);
-        
+
+        TypedValue left = convertToTypedValue(targetValueObj);
+        TypedValue right = convertToTypedValue(valueObj);
+        switch (expr.operator.type) {
+            case PLUS_EQUAL:
+                if (left.isNumeric() && right.isNumeric()) {
+                    if (left.isInteger() && right.isInteger()) {
+                        value = convertToTypedValue(left.asInt() + right.asInt());
+                    } else {
+                        value = convertToTypedValue(left.asDouble() + right.asDouble());
+                    }
+                }
+                if (left.getValue() instanceof String && right.getValue() instanceof String) {
+                    value = new TypedValue((String)left.getValue() + (String)right.getValue(), "String");
+                }
+                break;
+            case MINUS_EQUAL:
+                checkNumberOperands(expr.operator, left, right);
+                if (left.isInteger() && right.isInteger()) {
+                    value = convertToTypedValue(left.asInt() - right.asInt());
+                } else {
+                    value = convertToTypedValue(left.asDouble() - right.asDouble());
+                }
+                break;
+            case STAR_EQUAL:
+                checkNumberOperands(expr.operator, left, right);
+                if (left.isInteger() && right.isInteger()) {
+                    value = convertToTypedValue(left.asInt() * right.asInt());
+                } else {
+                    value = convertToTypedValue(left.asDouble() * right.asDouble());
+                }
+                break;
+            case SLASH_EQUAL:
+                checkNumberOperands(expr.operator, left, right);
+                if (left.isInteger() && right.isInteger()) {
+                    value = convertToTypedValue(left.asInt() / right.asInt());
+                } else {
+                    value = convertToTypedValue(left.asDouble() / right.asDouble());
+                }
+                break;
+            case PERCENT_EQUAL:
+                checkNumberOperands(expr.operator, left, right);
+                if (left.isInteger() && right.isInteger()) {
+                    value = convertToTypedValue(left.asInt() % right.asInt());
+                } else {
+                    value = convertToTypedValue(left.asDouble() % right.asDouble());
+                }
+            break;
+            case EQUAL:
+            default:
+                value = convertToTypedValue(valueObj);
+                break;
+        }
+
         // Variable name, value, and type name
         reporter.log("[INFO in Interpreter]typename: " + env.getTypeName() + " " + value.getValue() + " " + expr.name);
         environment.assign(expr.name, value.getValue(), env.getTypeName());
