@@ -30,21 +30,17 @@ public class Parser {
         return statements;
     }
 
-    // ===== Expression Part =====
     private Expr expression() {
-        return assignment();
+        return assignmentExpr();
     }
 
-
-    // ===== Statement Part =====
     private Stmt declaration() {
         try {
-            if (match(TokenType.INT_TYPE, TokenType.DOUBLE_TYPE, TokenType.CHAR_TYPE, TokenType.BOOLEAN_TYPE, TokenType.STRING_TYPE, TokenType.IDENTIFIER)) {
+            if (match(TokenType.INT_TYPE, TokenType.DOUBLE_TYPE, TokenType.CHAR_TYPE, TokenType.BOOLEAN_TYPE, TokenType.STRING_TYPE)) {
                 return varDeclaration();
             }
-            // TODO: includeStatement
-//            if (match(TokenType.INCLUDE))
-//                return includeStatement();
+            if (match(TokenType.INCLUDE))
+                return includeStatement();
             return statement();
         } catch (ParseError error) {
             synchronize();
@@ -71,7 +67,7 @@ public class Parser {
             initializer = expression();
         }
 
-        // Consume more ';'s
+        // Consume the ';'s
         do {
             consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
         } while (check(TokenType.SEMICOLON));
@@ -83,8 +79,18 @@ public class Parser {
         return new HtmlNode(primary());
     }
 
-    // TODO: includeStatement
-//    private Stmt includeStatement(){}
+    private Stmt includeStatement(){
+        if (!check(TokenType.STRING)) {
+            throw error(previous(), "Invalid filename to include.");
+        }
+        advance();
+        Token filename = previous();
+        // Consume the ';'s
+        do {
+            consume(TokenType.SEMICOLON, "Expect ';' after include statement.");
+        } while (check(TokenType.SEMICOLON));
+        return new IncludeNode(filename);
+    }
 
     private Stmt statement() {
         if (match(TokenType.IF)) return ifStatement();
@@ -96,8 +102,8 @@ public class Parser {
 
     private Stmt expressionStatement() {
         Expr expr = expression();
-//        consume(TokenType.SEMICOLON, "Expect ';' after expression.");
         boolean flag = false;
+        // Consume the ';'s, if present
         while (check(TokenType.SEMICOLON)) {
             consume(TokenType.SEMICOLON, "Expect ';' after expression.");
             flag = true;
@@ -105,9 +111,7 @@ public class Parser {
 
         // if it is an expression statement with ';' at the end
         if (flag) return new ExpressionNode(expr);
-        else {
-            return new HtmlNode(expr);
-        }
+        else return new HtmlNode(expr);
     }
 
     private Stmt ifStatement() {
@@ -139,7 +143,7 @@ public class Parser {
         Stmt initializer;
         if (match(TokenType.SEMICOLON)) {
             initializer = null;
-        } else if (match(TokenType.INT_TYPE, TokenType.DOUBLE_TYPE, TokenType.CHAR_TYPE, TokenType.BOOLEAN_TYPE, TokenType.STRING_TYPE, TokenType.IDENTIFIER)) {
+        } else if (match(TokenType.INT_TYPE, TokenType.DOUBLE_TYPE, TokenType.CHAR_TYPE, TokenType.BOOLEAN_TYPE, TokenType.STRING_TYPE, TokenType.IDENTIFIER)) { // TODO: check `TokenType.IDENTIFIER`
             initializer = varDeclaration();
         } else {
             initializer = expressionStatement();
@@ -185,19 +189,42 @@ public class Parser {
         return statements;
     }
 
-    private Expr assignment() {
-        Expr expr = logicalOr();
+    private Expr assignmentExpr() {
+        Expr expr = conditionalExpr();
 
-        if (match(TokenType.EQUAL)) {
-            Token equals = previous();
-            Expr value = assignment();
+        // If the next token is '=', treat this as an assignment
+        if (match(TokenType.EQUAL, TokenType.PLUS_EQUAL, TokenType.MINUS_EQUAL,
+                TokenType.STAR_EQUAL, TokenType.SLASH_EQUAL, TokenType.PERCENT_EQUAL)) {
+            Token operator = previous();
+            Expr value = assignmentExpr();  // NOTE: recursive!
 
-            if (expr instanceof VariableNode) {
-                Token name = ((VariableNode)expr).name;
-                return new AssignmentNode(name, value);
+            // Validate the left-hand side
+            if (expr instanceof VariableNode || expr instanceof GetNode) {
+                Expr target = (expr);
+                return new AssignmentNode(target, operator, value);
             }
 
-            reporter.error(equals, "Invalid assignment target.");
+            throw error(operator, "Invalid assignment target.");
+        }
+
+        return expr;
+    }
+
+    private Expr conditionalExpr() {
+        Expr expr = logicalOr();
+
+        if (match(TokenType.QUESTION_MARK)) {
+            throw error(previous(), "Conditional expression is NOT supported yet!");
+            // TODO
+//            Token equals = previous();
+//            Expr value = expression();
+//
+//            if (expr instanceof VariableNode) {
+//                Token name = ((VariableNode)expr).name;
+//                return new AssignmentNode(name, value);
+//            }
+//
+//            reporter.error(equals, "Invalid assignment target.");
         }
 
         return expr;
@@ -266,7 +293,7 @@ public class Parser {
     private Expr factor() {
         Expr expr = unary();
 
-        while (match(TokenType.SLASH, TokenType.STAR)) {
+        while (match(TokenType.STAR, TokenType.SLASH, TokenType.PERCENT)) {
             Token operator = previous();
             Expr right = unary();
             expr = new BinaryNode(expr, operator, right);
@@ -290,11 +317,7 @@ public class Parser {
         if (match(TokenType.FALSE)) return new LiteralNode(false);
         if (match(TokenType.NULL)) return new LiteralNode(null);
 
-//        if (match(TokenType.INT, TokenType.DOUBLE, TokenType.STRING)) {
-        if (match(
-//                TokenType.INT, TokenType.DOUBLE,
-                TokenType.NUMBER,
-                TokenType.CHAR, TokenType.STRING)) {
+        if (match(TokenType.NUMBER, TokenType.CHAR, TokenType.STRING)) {
             return new LiteralNode(previous().literal);
         }
 
@@ -303,15 +326,34 @@ public class Parser {
 
         if (match(TokenType.IDENTIFIER)) {
             Token token = previous();
-            return new VariableNode(token, "Identifier");
+            return finishCall(new VariableNode(token, "Identifier"));
         }
 
         if (match(TokenType.LEFT_PAREN)) {
             Expr expr = expression();
             consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
-            return new GroupingNode(expr);
+            return finishCall(new GroupingNode(expr));
         }
         throw error(peek(), "Expect expression.");
+    }
+    
+    // Add field access and array access support
+    private Expr finishCall(Expr expr) {
+        while (true) {
+            if (match(TokenType.DOT)) {
+                Token name = consume(TokenType.IDENTIFIER, "Expect property name after '.'.");
+                expr = new GetNode(expr, name);
+            } else if (match(TokenType.LEFT_BRACKET)) {
+                Token bracket = previous();
+                Expr index = expression();
+                consume(TokenType.RIGHT_BRACKET, "Expect ']' after array index.");
+                expr = new ArrayAccessNode(expr, index, bracket);
+            } else {
+                break;
+            }
+        }
+        
+        return expr;
     }
 
 

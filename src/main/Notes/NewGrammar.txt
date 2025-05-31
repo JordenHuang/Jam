@@ -32,29 +32,29 @@ block          → "{" declaration* "}" ;
 
 expression     → assignment_expr ;
 
-// TODO
 assignment_expr  → conditional_expr
                  | assignment ;
-// TODO
+
 conditional_expr → logic_or
-                 | logic_or "?" expression ":" conditional_expr ;
-// TODO
+                 // | logic_or "?" expression ":" conditional_expr ;  // TODO: future
+
 assignment       → left_hand_side assignment_op assignment ;
-// TODO
+
 left_hand_side   → expr_name | field_access | array_access ;
-// TODO
-assignment_op    → = | *= | /= | %= | += | -= | <<= | >>= | >>>= | &= | ^= | |= ;
-// TODO
-expression_name  → IDENTIFIER
+
+assignment_op    → = | *= | /= | %= | += | -= ;
+                 // | <<= | >>= | >>>= | &= | ^= | |= ; // TODO: future
+
+expr_name        → IDENTIFIER
                  | ambiguous_name "." IDENTIFIER ;
-// TODO
+
 ambiguous_name   → IDENTIFIER
                  | ambiguous_name "." IDENTIFIER ;
-// TODO
+
 field_access     → <primary> "." IDENTIFIER
-                 | super "." IDENTIFIER ;
-// TODO
-array_access     → expression_name [ expression ] ;
+                 // | super "." IDENTIFIER ; // TODO: future
+
+array_access     → expr_name "[" expression "]" ;
 
 logic_or       → logic_and ( "||" logic_and )* ;
 logic_and      → equality ( "&&" equality )* ;
@@ -66,7 +66,7 @@ factor         → unary ( ( "*" | "/" ) unary )* ;
 
 unary          → ( "!" | "-" ) unary
                | primary ;
-//               | call ; // <- TODO
+               // | call ; // TODO: future
 
 // TODO
 // call           → primary ( "(" arguments? ")" )* ;

@@ -33,6 +33,11 @@ public class Jam {
         reporter = new Reporter();
     }
 
+    public Jam(Environment env) {
+        this.env = env;
+        reporter = new Reporter();
+    }
+
     public List<Token> getTokens() {
         return tokens;
     }
@@ -106,18 +111,14 @@ public class Jam {
     }
 
     public void runBatchPrompt(String[] prompts, IOutput outputMethod) {
-//        String[] testCodes = new String[]{
-//                "",
-//                "<tr> {% int i = 1; while ( i < 3) {  i  i = i+1;} %} </tr>",
-//                "<tr> {% for (int i = 1; i < 10; i=i+1) { %} <th>{% i %}</th> {% } %} </tr>",
-//                "<p>{%int i = 0; double j = 1.0; i+j%}</p>",
-//                "{%int i = -1; i%}",
-//        };
         int i = 0;
         for (String prompt : prompts) {
             System.out.printf("%2d> %s\n", i, prompt);
             byte[] result = run(prompt);
             outputMethod.write(result);
+            reporter.hadError = false;
+            reporter.hadRuntimeError = false;
+            clearEnv();
         }
     }
 
@@ -155,15 +156,6 @@ public class Jam {
         } else if (args.length == 1) {
             jam.runFile(args[0]);
         } else {
-//            String basePath = "src/main/templates/";
-//            String templateFileName = "9x9.jam";
-//            runFile(basePath + templateFileName);
-            jam.runBatchPrompt(
-                    new String[]{
-                            "{%Student t = null;%}"
-                    },
-                    new StandardOutput()
-            );
             jam.runInteractiveShell(new StandardOutput());
         }
     }
