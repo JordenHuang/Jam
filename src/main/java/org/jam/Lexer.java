@@ -89,18 +89,6 @@ public class Lexer {
                     isAllWhitespaces = false;
                     break;
             }
-//            if (c == '{' && peek() == '%') {
-//                isJavaCode = true;
-//                // Trim the '{%'
-//                String value = source.substring(start, current-1);
-//                if (!value.isEmpty()) {
-//                    addToken(TokenType.HTML, value.replace("\n", ""));
-//                }
-//                advance();
-//                return;
-//            } else {
-//                if (c == '\n') line += 1;
-//            }
 
             if (!isAtEnd()) c = advance();
             else {
@@ -109,7 +97,6 @@ public class Lexer {
                 break;
             }
         }
-
 
         if (isJavaCode) {
             switch (c) {
@@ -266,35 +253,20 @@ public class Lexer {
     }
 
     private void number() {
-        boolean isInteger = true;
         while (isDigit(peek())) advance();
 
         // Look for a fractional part.
         if (peek() == '.' && isDigit(peekNext())) {
-            isInteger = false;
             // Consume the "."
             advance();
 
             while (isDigit(peek())) advance();
         }
 
-//         if (isInteger) {
-//             addToken(
-//                     TokenType.INT,
-//                     Integer.parseInt(source.substring(start, current)) /* TODO: Fix this */
-// //                    Double.parseDouble(source.substring(start, current))
-//             );
-//         } else {
-//             addToken(
-//                     TokenType.DOUBLE,
-//                     Double.parseDouble(source.substring(start, current))
-//             );
-//         }
-
-            addToken(
-                    TokenType.NUMBER,
-                    Double.parseDouble(source.substring(start, current))
-            );
+        addToken(
+                TokenType.NUMBER,
+                Double.parseDouble(source.substring(start, current))
+        );
     }
 
     private void identifier() {
@@ -355,32 +327,3 @@ public class Lexer {
         return isAlpha(c) || isDigit(c);
     }
 }
-
-//public class Lexer {
-//    String text;
-//    int pos;
-//    char currentChar;
-//    String currentToken;
-//    public Lexer(String text) {
-//        this.text = text;
-//        pos = 0;
-//    }
-//
-//    public String getNextToken() {
-//        StringBuilder sb = new StringBuilder();
-//        for (int i = pos; i < text.length(); ++i) {
-//            currentChar = text.charAt(i);
-//            if (currentChar == ' ' || currentChar == '\n') {
-//                if (!sb.isEmpty()) {
-//                    pos = i + 1;
-//                    currentToken = sb.toString();
-//                    return currentToken;
-//                }
-//            } else {
-//                sb.append(text.charAt(i));
-//            }
-//        }
-//
-//        return null;
-//    }
-//}

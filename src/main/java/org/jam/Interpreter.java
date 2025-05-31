@@ -8,7 +8,6 @@ import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -126,7 +125,6 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
     @Override
     public Object visitLiteralNode(LiteralNode<Object> expr) {
         reporter.log("visit literal node");
-        reporter.log("[INFO in Interpreter] Literal, value: " + expr.value);
         if (expr.value instanceof Number) {
             if (expr.value instanceof Integer) {
                 return new TypedValue(expr.value, "Integer");
@@ -166,7 +164,6 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
     public Object visitVariableExpr(VariableNode<Object> expr) {
         reporter.log("visit variable node");
         EnvironmentField field = environment.get(expr.name);
-        reporter.log("[INFO in Interpreter] Variable, value: " + field.getValue() + ", " + expr.name);
         return new TypedValue(field.getValue(), field.getTypeName());
     }
 
@@ -232,7 +229,6 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         }
 
         // Variable name, value, and type name
-        reporter.log("[INFO in Interpreter]typename: " + env.getTypeName() + " " + value.getValue() + " " + expr.name);
         environment.assign(expr.name, value.getValue(), env.getTypeName());
         return value;
     }
@@ -432,7 +428,6 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
             Object valueObj = evaluate(stmt.initializer);
             TypedValue typedValue = convertToTypedValue(valueObj);
             value = typedValue.getValue();
-            reporter.log("[INFO in Interpreter] in visitVarStmt, value is: " + value + " " + stmt.typeName);
         }
         environment.define(stmt.name, value, stmt.typeName);
         return null;

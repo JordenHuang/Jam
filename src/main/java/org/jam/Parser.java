@@ -30,14 +30,10 @@ public class Parser {
         return statements;
     }
 
-    // ===== Expression Part =====
     private Expr expression() {
         return assignmentExpr();
-//        return assignment();
     }
 
-
-    // ===== Statement Part =====
     private Stmt declaration() {
         try {
             if (match(TokenType.INT_TYPE, TokenType.DOUBLE_TYPE, TokenType.CHAR_TYPE, TokenType.BOOLEAN_TYPE, TokenType.STRING_TYPE)) {
@@ -106,8 +102,8 @@ public class Parser {
 
     private Stmt expressionStatement() {
         Expr expr = expression();
-//        consume(TokenType.SEMICOLON, "Expect ';' after expression.");
         boolean flag = false;
+        // Consume the ';'s, if present
         while (check(TokenType.SEMICOLON)) {
             consume(TokenType.SEMICOLON, "Expect ';' after expression.");
             flag = true;
@@ -219,7 +215,7 @@ public class Parser {
 
         if (match(TokenType.QUESTION_MARK)) {
             throw error(previous(), "Conditional expression is NOT supported yet!");
-            // Maybe todo
+            // TODO
 //            Token equals = previous();
 //            Expr value = expression();
 //

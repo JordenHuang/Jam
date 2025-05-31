@@ -17,7 +17,6 @@ public class Main {
         String templateFileName = "features.jam";
 
         Jam jam = new Jam();
-//        IOutput outputType = new StandardOutput();
         IOutput outputType;
         try {
              outputType = new FileOutput(basePath + "9x9.html");

@@ -1,12 +1,13 @@
 # TODO
 
 - [Future] The ++ and -- operator
-- [WIP] Implement the TODOs in NewGrammar.txt
+- [Future] The conditional expression
 - [ ] Provide `ifDefine()` method to check if a variable is defined (or provide from the user) in the template,
       so the template can have default value for some variables, like `{% ifDefine(backgroundColor) backgroundColor else "#007acc" %}`
 
 ## Done (from recent to old)
 
+- [x] Implement the TODOs in NewGrammar.txt
 - [x] Implement the `include "something.template"` statement in code block
 - [x] Allow user defined types to pass to the template (Parser should recognize that, and Interpreter should handle that as well)
 - [x] Provide different output types, standard output as well as write to file
