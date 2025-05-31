@@ -36,6 +36,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
 
     @Override
     public Object visitUnaryNode(UnaryNode<Object> expr) {
+        reporter.log("visit unary node");
         Object rightObj = evaluate(expr.right);
         TypedValue right = convertToTypedValue(rightObj);
 
@@ -59,9 +60,10 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
 
     @Override
     public Object visitBinaryNode(BinaryNode<Object> expr) {
+        reporter.log("visit binary node");
         Object leftObj = evaluate(expr.left);
         Object rightObj = evaluate(expr.right);
-        
+
         TypedValue left = convertToTypedValue(leftObj);
         TypedValue right = convertToTypedValue(rightObj);
 
@@ -123,6 +125,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
 
     @Override
     public Object visitLiteralNode(LiteralNode<Object> expr) {
+        reporter.log("visit literal node");
         reporter.log("[INFO in Interpreter] Literal, value: " + expr.value);
         if (expr.value instanceof Number) {
             if (expr.value instanceof Integer) {
@@ -140,6 +143,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
 
     @Override
     public Object visitLogicalExpr(LogicalNode<Object> expr) {
+        reporter.log("visit logical node");
         Object leftObj = evaluate(expr.left);
         TypedValue left = convertToTypedValue(leftObj);
 
@@ -154,11 +158,13 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
 
     @Override
     public Object visitGroupingNode(GroupingNode<Object> expr) {
+        reporter.log("visit grouping node");
         return evaluate(expr.expression);
     }
 
     @Override
     public Object visitVariableExpr(VariableNode<Object> expr) {
+        reporter.log("visit variable node");
         EnvironmentField field = environment.get(expr.name);
         reporter.log("[INFO in Interpreter] Variable, value: " + field.getValue() + ", " + expr.name);
         return new TypedValue(field.getValue(), field.getTypeName());
@@ -166,6 +172,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
 
     @Override
     public Object visitAssignmentExpr(AssignmentNode<Object> expr) {
+        reporter.log("visit assignment node");
         EnvironmentField env = environment.get(expr.name);
         Object targetValueObj = env.getValue();
         Object valueObj = evaluate(expr.value);
@@ -232,15 +239,16 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
 
     @Override
     public Object visitGetExpr(GetNode<Object> expr) {
+        reporter.log("visit get node");
         Object objectObj = evaluate(expr.object);
         String fieldName = expr.name.lexeme;
-        
+
         // Special case for arrays - handle length property
         if (fieldName.equals("length")) {
             if (objectObj instanceof TypedValue) {
                 TypedValue typedValue = (TypedValue)objectObj;
                 Object object = typedValue.getValue();
-                
+
                 if (object instanceof List) {
                     return new TypedValue(((List<?>)object).size(), "Integer");
                 } else if (object instanceof Object[]) {
@@ -250,12 +258,12 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
                 }
             }
         }
-        
+
         // Handle TypedValue objects
         if (objectObj instanceof TypedValue) {
             TypedValue typedValue = (TypedValue)objectObj;
             Object object = typedValue.getValue();
-            
+
             // Case 1: Map
             if (object instanceof Map) {
                 Map<String, Object> map = (Map<String, Object>)object;
@@ -265,7 +273,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
                 }
                 throw new RuntimeError(expr.name, "Undefined property '" + fieldName + "'.");
             }
-            
+
             // Case 2: JavaBean - try getter
             try {
                 // e.g., "name" -> "getName"
@@ -291,7 +299,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         } else {
             // Handle regular objects (non-TypedValue)
             Object object = objectObj;
-            
+
             // Case 1: Map
             if (object instanceof Map) {
                 Map<String, Object> map = (Map<String, Object>)object;
@@ -301,7 +309,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
                 }
                 throw new RuntimeError(expr.name, "Undefined property '" + fieldName + "'.");
             }
-            
+
             // Case 2: JavaBean - try getter
             try {
                 // e.g., "name" -> "getName"
@@ -328,84 +336,86 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         }
     }
 
-
     @Override
     public Object visitArrayAccessExpr(ArrayAccessNode<Object> expr) {
         Object arrayObj = evaluate(expr.array);
         Object indexObj = evaluate(expr.index);
-        
+
         TypedValue array = convertToTypedValue(arrayObj);
         TypedValue index = convertToTypedValue(indexObj);
-        
+
         if (array.getValue() == null) {
             throw new RuntimeError(expr.bracket, "Cannot access elements of null.");
         }
-        
+
         // Handle array access for different types
         if (array.getValue() instanceof List) {
             List<?> list = (List<?>) array.getValue();
             int idx = index.asInt();
-            
+
             if (idx < 0 || idx >= list.size()) {
                 throw new RuntimeError(expr.bracket, "Array index out of bounds: " + idx);
             }
-            
+
             Object value = list.get(idx);
             return new TypedValue(value, getTypeNameForValue(value));
-        } 
+        }
         else if (array.getValue() instanceof Object[]) {
             Object[] objArray = (Object[]) array.getValue();
             int idx = index.asInt();
-            
+
             if (idx < 0 || idx >= objArray.length) {
                 throw new RuntimeError(expr.bracket, "Array index out of bounds: " + idx);
             }
-            
+
             Object value = objArray[idx];
             return new TypedValue(value, getTypeNameForValue(value));
         }
         else if (array.getValue() instanceof String) {
             String str = (String) array.getValue();
             int idx = index.asInt();
-            
+
             if (idx < 0 || idx >= str.length()) {
                 throw new RuntimeError(expr.bracket, "String index out of bounds: " + idx);
             }
-            
+
             return new TypedValue(String.valueOf(str.charAt(idx)), "String");
         }
         else if (array.getValue() instanceof Map) {
             Map<?, ?> map = (Map<?, ?>) array.getValue();
             Object key = index.getValue();
-            
+
             if (!map.containsKey(key)) {
                 throw new RuntimeError(expr.bracket, "Key not found in map: " + key);
             }
-            
+
             Object value = map.get(key);
             return new TypedValue(value, getTypeNameForValue(value));
         }
-        
+
         throw new RuntimeError(expr.bracket, "Cannot use array access on type: " + array.getTypeName());
     }
 
     @Override
     public Void visitBlockStmt(BlockNode<Void> stmt) {
+        reporter.log("visit block node");
         executeBlock(stmt.statements, new Environment(environment));
         return null;
     }
 
     @Override
     public Void visitExpressionStmt(ExpressionNode<Void> stmt) {
+        reporter.log("visit expression node");
         evaluate(stmt.expression);
         return null;
     }
 
     @Override
     public Void visitIfStmt(IfNode<Void> stmt) {
+        reporter.log("visit if node");
         Object condObj = evaluate(stmt.condition);
         TypedValue cond = convertToTypedValue(condObj);
-        
+
         if (isBoolean(cond.getValue())) {
             execute(stmt.thenBranch);
         } else if (stmt.elseBranch != null) {
@@ -416,6 +426,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
 
     @Override
     public Void visitVarStmt(VarNode<Void> stmt) {
+        reporter.log("visit var node");
         Object value = null;
         if (stmt.initializer != null) {
             Object valueObj = evaluate(stmt.initializer);
@@ -429,6 +440,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
 
     @Override
     public Void visitWhileStmt(WhileNode<Void> stmt) {
+        reporter.log("visit while node");
         while (true) {
             Object condObj = evaluate(stmt.condition);
             TypedValue cond = convertToTypedValue(condObj);
@@ -440,9 +452,10 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
 
     @Override
     public Void visitHtmlStmt(HtmlNode<Void> stmt) {
+        reporter.log("visit html node");
         Object valueObj = evaluate(stmt.expr);
         TypedValue value = convertToTypedValue(valueObj);
-        
+
         String typeName = value.getTypeName();
         if (typeName.equals("Identifier")) {
             // TODO: check this
@@ -462,6 +475,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
 
     @Override
     public Void visitIncludeStmt(IncludeNode<Void> stmt) {
+        reporter.log("visit include node");
         try {
             Jam jam = new Jam(environment);
             String filename = stmt.filename.lexeme;
@@ -520,7 +534,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         if (left.isNumeric() && right.isNumeric()) return;
         throw new RuntimeError(operator, "Operands must be numbers.");
     }
-    
+
     private TypedValue convertToTypedValue(Object obj) {
         if (obj instanceof TypedValue) {
             return (TypedValue)obj;
@@ -541,7 +555,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
             return new TypedValue(obj, "Object");
         }
     }
-    
+
     private String getTypeNameForValue(Object value) {
         if (value instanceof Integer) return "Integer";
         if (value instanceof Double) return "Double";

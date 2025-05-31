@@ -1,6 +1,6 @@
 # TODO
 
-- [ ] The ++ and -- operator
+- [Future] The ++ and -- operator
 - [WIP] Implement the TODOs in NewGrammar.txt
 - [ ] Provide `ifDefine()` method to check if a variable is defined (or provide from the user) in the template,
       so the template can have default value for some variables, like `{% ifDefine(backgroundColor) backgroundColor else "#007acc" %}`

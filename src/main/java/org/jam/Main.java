@@ -13,7 +13,8 @@ import java.util.UnknownFormatConversionException;
 public class Main {
     public static void main(String[] args) {
         String basePath = "src/main/templates/";
-        String templateFileName = "9x9.jam";
+//        String templateFileName = "9x9.jam";
+        String templateFileName = "features.jam";
 
         Jam jam = new Jam();
 //        IOutput outputType = new StandardOutput();
@@ -47,8 +48,16 @@ public class Main {
 class Student {
     public int id;
     public String name;
+    public String[] classes;
+
     public Student(int id, String name) {
         this.id = id;
         this.name = name;
+        this.classes = new String[] {
+                "Chinese",
+                "English",
+                "Math",
+                "Science",
+        };
     }
 }

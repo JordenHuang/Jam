@@ -297,7 +297,7 @@ public class Parser {
     private Expr factor() {
         Expr expr = unary();
 
-        while (match(TokenType.SLASH, TokenType.STAR)) {
+        while (match(TokenType.STAR, TokenType.SLASH, TokenType.PERCENT)) {
             Token operator = previous();
             Expr right = unary();
             expr = new BinaryNode(expr, operator, right);

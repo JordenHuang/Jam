@@ -124,6 +124,7 @@ public class Lexer {
                     } else {
                         addToken(TokenType.PERCENT);
                     }
+                    break;
                 case '(':
                     addToken(TokenType.LEFT_PAREN);
                     break;
