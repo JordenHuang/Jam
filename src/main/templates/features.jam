@@ -1,160 +1,73 @@
-<style>
-.dotLine {
-    border-top: 1px dashed black;
-}
-</style>
-
-<h1>Jam syntax test</h1>
-
-<h2>Arithmetic</h2>
-<p>int intA = 500; int intB = 100;</p>
-<p>double doubleA = 500; double doubleB = 100;</p>
-<p>String stringA = "Hello"; String stringB = " world!";</p>
-
-{% int intA = 500; int intB = 100; %}
-{% double doubleA = 500; double doubleB = 100;%}
-{% String stringA = "Hello"; String stringB = " world!"; %}
-
-<hr class="dotLine">
-<h3>Operator: +</h3>
-<p>
-intA + intA = {% intA + intA %}
-</p>
-<p>
-intA + doubleA = {% intA + doubleA %}
-</p>
-<p>
-doubleA + doubleA = {% doubleA + doubleA %}
-</p>
-<p>
-stringA + stringB = {% stringA + stringB %}
-</p>
-
-<hr class="dotLine">
-<h3>Operator: -</h3>
-<p>
-intA - intB = {% intA - intB %}
-</p>
-<p> intA - doubleA = {% intA - doubleA %}
-</p>
-<p>
-doubleA - doubleB = {% doubleA - doubleB %}
-</p>
-
-<hr class="dotLine">
-<h3>Operator: *</h3>
-<p>
-intA * intB = {% intA * intB %}
-</p>
-<p>
-intA * doubleA = {% intA * doubleA %}
-</p>
-<p>
-doubleA * doubleB = {% doubleA * doubleB %}
-</p>
-
-<hr class="dotLine">
-<h3>Operator: /</h3>
-<p>
-intA / intB = {% intA / intB %}
-</p>
-<p>
-intA / doubleA = {% intA / doubleA %}
-</p>
-<p>
-doubleA / doubleB = {% doubleA / doubleB %}
-</p>
-
-<hr class="dotLine">
-<h3>Operator: %</h3>
-<p>
-intA % intB = {% intA % intB %}
-</p>
-<p>
-intA % (intB+399) = {% intA % (intB+399) %}
-</p>
-<p>
-intA % doubleA = {% intA % doubleA %}
-</p>
-<p>
-doubleA % doubleB = {% doubleA % doubleB %}
-</p>
-
 <hr>
-<h2>Condition</h2>
+<h2>ifDefine Function Test</h2>
+
+<h3>Test with existing variables</h3>
 <p>
-if (intA < 100) stringA
-else stringB
-<br>
-Result: {% if (intA < 100) stringA else stringB %}
+Title (exists):
+<span style="color: blue;">{% if (ifDefine(title)) title else "Default Title" %}</span>
 </p>
 
-<hr>
-<h2>Control flow</h2>
-
-<h3>while loop</h3>
 <p>
-while (intB < 110) { {% "doubleB " " intB += 1;" %} }
-<br>
-Result: {% while (intB < 110) { intB " " intB += 1; } %}
+Font Size (exists):
+<span style="font-size: {% if (ifDefine(fontSize)) fontSize else 16 %}px;">
+    This text uses {% if (ifDefine(fontSize)) fontSize else 16 %}px font
+</span>
 </p>
 
-<hr class="dotLine">
-<h3>for loop</h3>
+<h3>Test with non-existing variables</h3>
 <p>
-for (int i = 0; i < 10; i+=1) i*i
-<br>
-Result: {% for (int i = 0; i < 10; i+=1) { i*i ' ' } %}
+Background Color (doesn't exist):
+<span style="background-color: {% if (ifDefine(backgroundColor)) backgroundColor else "#007acc" %}; color: white; padding: 5px;">
+    Background: {% if (ifDefine(backgroundColor)) backgroundColor else "#007acc" %}
+</span>
 </p>
 
-<hr>
-<h2>Block</h2>
-<pre>
-for (int i = 0; i < 10; i+=1) {
-    "i is: " i ", "
-    {
-        int i = i*i; "i in block is: " i
-    }
-}
-</pre>
 <p>
-Result:
-<br>
-{% for (int i = 0; i < 10; i+=1) { %}
-    {% "i is: " i ", " %}
-    {% { %}
-        {% int i = i*i; "i in block is: " i %}
+Theme (doesn't exist):
+Theme is set to: <strong>{% if (ifDefine(theme)) theme else "light" %}</strong>
+</p>
+
+<p>
+Logo URL (doesn't exist):
+{% if (ifDefine(logoUrl)) { %}
+    <img src="{% logoUrl %}" alt="Logo" style="max-width: 100px;">
+{% } else { %}
+    <span style="border: 2px dashed #ccc; padding: 10px; display: inline-block;">
+        No logo available
+    </span>
+{% } %}
+</p>
+
+<h3>Advanced Usage</h3>
+<p>
+Multiple conditions with ifDefine:
+</p>
+<div style="border: 1px solid #ddd; padding: 10px; margin: 10px 0;">
+    {% if (ifDefine(customMessage)) { %}
+        <p style="color: green;">Custom: {% customMessage %}</p>
+    {% } else { %}
+        {% if (ifDefine(title)) { %}
+            <p style="color: blue;">Using title as message: {% title %}</p>
+        {% } else { %}
+            <p style="color: gray;">Default message: Welcome to our site!</p>
+        {% } %}
     {% } %}
-    <br>
+</div>
+
+<h3>Using ifDefine in loops</h3>
+<p>Student list with optional class filter:</p>
+<ul>
+{% for (int i = 0; i < sts.length; i+=1) { %}
+    {% if (i < 5) { %}
+    <li>
+        Student: {% sts[i].name %} (ID: {% sts[i].id %})
+        {% if (ifDefine(showClasses)) { %}
+            - Classes:
+            {% for (int j = 0; j < sts[i].classes.length; j+=1) { %}
+                {% sts[i].classes[j] %}{% if (j < sts[i].classes.length - 1) { %}, {% } %}
+            {% } %}
+        {% } %}
+    </li>
+    {% } %}
 {% } %}
-</p>
-
-<hr>
-<h2>Field access</h2>
-<p>
-student.name: {% student.name %}
-</p>
-<p>
-student.id: {% student.id %}
-</p>
-
-<hr>
-<h2>Array access</h2>
-<p>
-for (int i = 0; i < students.classes.length; i+=1) {
-    student.classes[i]
-}
-<br>
-Result:
-{% for (int i = 0; i < student.classes.length; i+=1) { %}
-    <li> {% student.classes[i] %}
-    <br>
-{% } %}
-</p>
-
-<hr>
-<h2>Include statement</h2>
-<p>
-include "footer.html"
-{% include "src/main/templates/footer.jam"; %}
-</p>
+</ul>
