@@ -54,6 +54,21 @@ public class AstPrinter implements ExprVisitor<String> {
         return expr.accept(this);
     }
 
+    // Add：實現 visitFunctionCallExpr 方法
+    @Override
+    public String visitFunctionCallExpr(FunctionCallNode<String> expr) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("(call ").append(expr.name.lexeme);
+
+        for (Expr<String> arg : expr.arguments) {
+            builder.append(" ");
+            builder.append(arg.accept(this));
+        }
+
+        builder.append(")");
+        return builder.toString();
+    }
+
     @SafeVarargs
     private String parenthesize(String name, Expr<String>... exprs) {
         StringBuilder builder = new StringBuilder();
