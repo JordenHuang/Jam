@@ -10,4 +10,5 @@ public interface ExprVisitor<T> {
     T visitLogicalExpr(LogicalNode<T> expr);
     T visitGetExpr(GetNode<T> expr);
     T visitArrayAccessExpr(ArrayAccessNode<T> expr);
+    T visitFunctionCallExpr(FunctionCallNode<T> expr);
 }
