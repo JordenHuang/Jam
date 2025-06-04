@@ -338,7 +338,7 @@ public class Parser {
     }
     
     // Add field access and array access support
-    private Expr finishCall(Expr expr) {
+    /*private Expr finishCall(Expr expr) {
         while (true) {
             if (match(TokenType.DOT)) {
                 Token name = consume(TokenType.IDENTIFIER, "Expect property name after '.'.");
@@ -354,6 +354,49 @@ public class Parser {
         }
         
         return expr;
+    }*/
+
+    //fix
+    private Expr finishCall(Expr expr) {
+        while (true) {
+            if (match(TokenType.LEFT_PAREN)) {
+                // 這是函數調用
+                expr = finishFunctionCall(expr);
+            } else if (match(TokenType.DOT)) {
+                Token name = consume(TokenType.IDENTIFIER, "Expect property name after '.'.");
+                expr = new GetNode(expr, name);
+            } else if (match(TokenType.LEFT_BRACKET)) {
+                Token bracket = previous();
+                Expr index = expression();
+                consume(TokenType.RIGHT_BRACKET, "Expect ']' after array index.");
+                expr = new ArrayAccessNode(expr, index, bracket);
+            } else {
+                break;
+            }
+        }
+
+        return expr;
+    }
+
+    // Add 新增 finishFunctionCall : 完成並返回函數調用表達式，處理函數調用參數並生成對應的函數調用節點
+    private Expr finishFunctionCall(Expr callee) {
+        List<Expr> arguments = new ArrayList<>();
+
+        if (!check(TokenType.RIGHT_PAREN)) {
+            do {
+                arguments.add(expression());
+            } while (match(TokenType.COMMA));
+        }
+
+        Token paren = consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments.");
+
+        // 如果 callee 是一個變數節點，將其轉換為函數調用
+        if (callee instanceof VariableNode) {
+            VariableNode<Object> varNode = (VariableNode<Object>) callee;
+            return new FunctionCallNode(varNode.name, arguments);
+        }
+
+        throw error(paren, "Invalid function call.");
     }
 
 
