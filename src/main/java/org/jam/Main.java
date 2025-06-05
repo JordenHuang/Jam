@@ -26,7 +26,7 @@ public class Main {
         }
 
         Map<String, Object> context = new HashMap<>();
-        //context.put("title", "9x9 table");
+        context.put("title", "9x9 table");
         context.put("fontSize", 20);
         // 注意：故意不添加 backgroundColor, theme, logoUrl, customMessage, showClasses
         // 來測試 ifDefine 的預設值功能
