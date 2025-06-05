@@ -97,19 +97,19 @@ Testing variable existence with ifDefine():
 
 <p>
 Title (exists):
-<span style="color: blue;">{% if (ifDefine(title)) title else "Default Title" %}</span>
+<span style="color: blue;">{% ifDefine(customMessage, title, "Welcome to our site!") %} %}</span>
 </p>
 
 <p>
 Font Size (exists):
-<span style="font-size: {% if (ifDefine(fontSize)) fontSize else 16 %}px;">
+<span style="font-size: {% ifDefine(fontSize, 16) %}px;">
     This text uses {% if (ifDefine(fontSize)) fontSize else 16 %}px font
 </span>
 </p>
 
 <p>
 Background Color (doesn't exist):
-<span style="background-color: {% if (ifDefine(backgroundColor)) backgroundColor else "#007acc" %}; color: white; padding: 5px;">
+<span style="background-color: {% ifDefine(backgroundColor, "#007acc") %}; color: white; padding: 5px;">
     Background: {% if (ifDefine(backgroundColor)) backgroundColor else "#007acc" %}
 </span>
 </p>
@@ -189,19 +189,6 @@ Result:
 {% } %}
 </p>
 
-<hr class="dotLine">
-<h3>Block with ifDefine</h3>
-<div style="border: 1px solid #ddd; padding: 10px; margin: 10px 0;">
-    {% if (ifDefine(customMessage)) { %}
-        <p style="color: green;">Custom: {% customMessage %}</p>
-    {% } else { %}
-        {% if (ifDefine(title)) { %}
-            <p style="color: blue;">Using title as message: {% title %}</p>
-        {% } else { %}
-            <p style="color: gray;">Default message: Welcome to our site!</p>
-        {% } %}
-    {% } %}
-</div>
 
 <hr>
 <h2>Field access</h2>
