@@ -585,25 +585,57 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
 
     // 實作 ifDefine 函數的邏輯
     private Object handleIfDefine(List<Expr<Object>> arguments) {
-        if (arguments.size() != 1) {
-            throw new RuntimeError(null, "ifDefine() expects exactly 1 argument.");
+        // 修改：允許接受 1 個或多個參數
+        if (arguments.isEmpty()) {
+            throw new RuntimeError(null, "ifDefine() expects at least 1 argument.");
         }
 
-        Expr<Object> arg = arguments.get(0);
+        // case 1：只有一個參數 - 返回 boolean（原有邏輯）
+        if (arguments.size() == 1) {
+            Expr<Object> arg = arguments.get(0);
 
-        // 檢查參數是否為變數表達式
-        if (!(arg instanceof VariableNode<Object> varNode)) {
-            throw new RuntimeError(null, "ifDefine() argument must be a variable name.");
+            // 檢查參數是否為變數表達式
+            if (!(arg instanceof VariableNode<Object> varNode)) {
+                throw new RuntimeError(null, "ifDefine() argument must be a variable name.");
+            }
+
+            // 檢查變數是否在環境中定義
+            try {
+                environment.get(varNode.name);
+                return true;  // 變數存在
+            } catch (Exception e) {
+                return false; // 變數不存在
+            }
         }
 
-        //String varName = varNode.name.lexeme;
+        // 情況2：多個參數 - 返回第一個已定義變數的值，或最後一個參數（默認值）
+        // {% ifDefine(var1, var2, "default value") %}
+        // 檢查變數 var1 和 var2 是否已定義。如果其中一個變數已經定義，則返回該變數的值；如果兩者都未定義，則返回 "default value"
+        else {
+            // 檢查前 n-1 個參數（變數名稱）
+            for (int i = 0; i < arguments.size() - 1; i++) {
+                Expr<Object> arg = arguments.get(i);
 
-        // 檢查變數是否在環境中定義
-        try {
-            environment.get(varNode.name);
-            return true;  // 變數存在
-        } catch (Exception e) {
-            return false; // 變數不存在
+                // 檢查是否為變數表達式
+                if (!(arg instanceof VariableNode<Object> varNode)) {
+                    throw new RuntimeError(null, "ifDefine() variable arguments must be variable names.");
+                }
+
+                // 檢查變數是否在環境中定義
+                try {
+                    Object value = environment.get(varNode.name);
+                    return value;  // 返回第一個找到的變數值
+                } catch (Exception e) {
+                    // 繼續檢查下一個變數
+                    continue;
+                }
+            }
+
+            // 如果沒有找到任何已定義的變數，返回最後一個參數（默認值）
+            Expr<Object> defaultValue = arguments.get(arguments.size() - 1);
+            return evaluate(defaultValue);
         }
+
+
     }
 }
