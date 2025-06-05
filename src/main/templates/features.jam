@@ -97,19 +97,19 @@ Testing variable existence with ifDefine():
 
 <p>
 Title (exists):
-<span style="color: blue;">{% ifDefine(customMessage, title, "Welcome to our site!") %} %}</span>
+<span style="color: blue;">{% if (ifDefine(title)) title else "Default Title" %}</span>
 </p>
 
 <p>
 Font Size (exists):
-<span style="font-size: {% ifDefine(fontSize, 16) %}px;">
+<span style="font-size: {% if (ifDefine(fontSize)) fontSize else 16 %};px;">
     This text uses {% if (ifDefine(fontSize)) fontSize else 16 %}px font
 </span>
 </p>
 
 <p>
 Background Color (doesn't exist):
-<span style="background-color: {% ifDefine(backgroundColor, "#007acc") %}; color: white; padding: 5px;">
+<span style="background-color: {% if (ifDefine(backgroundColor)) backgroundColor else "#007acc" %}; color: white; padding: 5px;">
     Background: {% if (ifDefine(backgroundColor)) backgroundColor else "#007acc" %}
 </span>
 </p>
