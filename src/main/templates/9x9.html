@@ -87,6 +87,45 @@ else stringB
 Result:  world!
 </p>
 
+<hr class="dotLine">
+<h3>ifDefine Function</h3>
+<p>
+Testing variable existence with ifDefine():
+</p>
+
+<p>
+Title (exists):
+<span style="color: blue;">Default Title</span>
+</p>
+
+<p>
+Font Size (exists):
+<span style="font-size: 20;px;">
+    This text uses 20px font
+</span>
+</p>
+
+<p>
+Background Color (doesn't exist):
+<span style="background-color: #007acc; color: white; padding: 5px;">
+    Background: #007acc
+</span>
+</p>
+
+<p>
+Theme (doesn't exist):
+Theme is set to: <strong>light</strong>
+</p>
+
+<p>
+Logo URL (doesn't exist):
+
+    <span style="border: 2px dashed #ccc; padding: 10px; display: inline-block;">
+        No logo available
+    </span>
+
+</p>
+
 <hr>
 <h2>Control flow</h2>
 
@@ -104,6 +143,38 @@ for (int i = 0; i < 10; i+=1) i*i
 <br>
 Result: 0 1 4 9 16 25 36 49 64 81 
 </p>
+
+<hr class="dotLine">
+<h3>for loop with ifDefine</h3>
+<p>Student list with optional class filter:</p>
+<ul>
+
+    <li>
+        Student: AAAA (ID: 0)
+        
+    </li>
+    
+    <li>
+        Student: BBBB (ID: 1)
+        
+    </li>
+    
+    <li>
+        Student: CCCC (ID: 2)
+        
+    </li>
+    
+    <li>
+        Student: DDDD (ID: 3)
+        
+    </li>
+    
+    <li>
+        Student: EEEE (ID: 4)
+        
+    </li>
+    
+</ul>
 
 <hr>
 <h2>Block</h2>
@@ -141,6 +212,7 @@ i is: 9, i in block is: 81
 
 </p>
 
+
 <hr>
 <h2>Field access</h2>
 <p>
@@ -172,6 +244,7 @@ Result:
     <br>
 
 </p>
+
 
 <hr>
 <h2>Include statement</h2>

@@ -566,4 +566,45 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         if (str == null || str.isEmpty()) return str;
         return Character.toUpperCase(str.charAt(0)) + str.substring(1);
     }
+
+    // 新增 函數調用表達式
+    @Override
+    public Object visitFunctionCallExpr(FunctionCallNode<Object> expr) {
+        reporter.log("visit function call node: " + expr.name.lexeme);
+
+        String functionName = expr.name.lexeme;
+
+        // 處理內建函數
+        switch (functionName) {
+            case "ifDefine":
+                return handleIfDefine(expr, expr.arguments);
+            default:
+                throw new RuntimeError(expr.name, "Undefined function '" + functionName + "'.");
+        }
+    }
+
+    // 實作 ifDefine 函數的邏輯
+    private Object handleIfDefine(FunctionCallNode<Object> expr, List<Expr<Object>> arguments) {
+        if (arguments.size() != 1) {
+            throw new RuntimeError(expr.name, "ifDefine() expects exactly 1 argument.");
+//            throw new RuntimeError(null, "ifDefine() expects exactly 1 argument.");
+        }
+
+        Expr<Object> arg = arguments.get(0);
+
+        // 檢查參數是否為變數表達式
+        if (!(arg instanceof VariableNode<Object> varNode)) {
+            throw new RuntimeError(expr.name, "ifDefine() argument must be a variable name.");
+        }
+
+        //String varName = varNode.name.lexeme;
+
+        // 檢查變數是否在環境中定義
+        try {
+            environment.get(varNode.name);
+            return true;  // 變數存在
+        } catch (Exception e) {
+            return false; // 變數不存在
+        }
+    }
 }
