@@ -3,6 +3,7 @@ package org.jam;
 import org.jam.outputType.FileOutput;
 import org.jam.outputType.IOutput;
 import org.jam.outputType.StandardOutput;
+import org.jam.web.Server;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -18,6 +19,9 @@ public class Main {
 
         Jam jam = new Jam();
         IOutput outputType;
+
+//        IOutput output = new Server();
+
         try {
              outputType = new FileOutput(basePath + "9x9.html");
         } catch (IOException e) {
@@ -41,6 +45,8 @@ public class Main {
         context.put("sts", sts);
 
         jam.renderTemplate(basePath.concat(templateFileName), outputType, context);
+
+//        jam.renderTemplate(basePath.concat(templateFileName), output, context);
 
     }
 }
