@@ -23,7 +23,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class Jam {
-    Environment env;
+    private Environment env;
     private Reporter reporter;
     private List<Token> tokens;
     private List<Stmt> statements;
@@ -95,15 +95,19 @@ public class Jam {
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);
 
-        System.out.print("Jam interactive shell\n");
-        System.out.print("Type \"exit\" to exit.");
+        System.out.println("Jam interactive shell");
+        System.out.println("Each input is evaluate in a separated environment.");
+        System.out.println("Type \"exit\" to exit.");
         for (;;) {
-            System.out.print("\n> ");
+            System.out.print("> ");
             String line = reader.readLine();
             if (line.equals("exit")) break;
-            if (line.isEmpty()) continue;
+            if (line.isEmpty()) {
+                continue;
+            }
             byte[] result = run(line);
             outputMethod.write(result);
+            if (!(reporter.hadError || reporter.hadRuntimeError)) System.out.print("\n");
             reporter.hadError = false;
             reporter.hadRuntimeError = false;
             clearEnv();
@@ -125,10 +129,6 @@ public class Jam {
     public byte[] run(String source) {
         Lexer lexer = new Lexer(source, reporter);
         tokens = lexer.scanTokens();
-
-        for (Token t : getTokens()) {
-            System.out.println(t);
-        }
 
         Parser parser = new Parser(tokens, reporter);
         statements = parser.parse();
