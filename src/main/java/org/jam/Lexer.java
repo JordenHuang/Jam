@@ -184,14 +184,14 @@ public class Lexer {
                 case '\'': character(); break;
                 case '"': string(); break;
                 case '|':
-                    if (peek() == '|') {
+                    if (match('|')) {
                         addToken(TokenType.OR);
                     } else {
                         reporter.error(line, "Unexpected character: " + c );
                     }
                     break;
                 case '&':
-                    if (peek() == '&') {
+                    if (match('&')) {
                         addToken(TokenType.AND);
                     } else {
                         reporter.error(line, "Unexpected character: " + c );

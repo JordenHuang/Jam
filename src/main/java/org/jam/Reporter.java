@@ -38,4 +38,9 @@ public class Reporter {
         System.err.println(error.getMessage() + " [line " + error.token.line + "]");
         hadRuntimeError = true;
     }
+
+    public void runtimeException(RuntimeException error) {
+        System.err.println(error.getMessage());
+        hadRuntimeError = true;
+    }
 }

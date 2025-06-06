@@ -29,6 +29,8 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
             }
         } catch (RuntimeError error) {
             reporter.runtimeError(error);
+        } catch (RuntimeException error) {
+            reporter.runtimeException(error);
         }
         return result.toString().getBytes();
     }
@@ -451,19 +453,24 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         Object valueObj = evaluate(stmt.expr);
         TypedValue value = convertToTypedValue(valueObj);
 
-        String typeName = value.getTypeName();
-        if (typeName.equals("Identifier")) {
-            // TODO: check this
-            System.out.print("Identifier: ");
-            result.append(value.getValue());
-        } else if (typeName.equals("Integer")) {
-            result.append(value.asInt());
-        } else if (typeName.equals("Double")) {
-            result.append(value.asDouble());
-        } else if (typeName.equals("String")) {
-            result.append(value.getValue());
-        } else {
-            result.append(value.getValue());
+        try {
+            String typeName = value.getTypeName();
+            if (typeName.equals("Identifier")) {
+                // TODO: check this
+                System.out.print("Identifier: ");
+                result.append(value.getValue());
+            } else if (typeName.equals("Integer")) {
+                result.append(value.asInt());
+            } else if (typeName.equals("Double")) {
+                result.append(value.asDouble());
+            } else if (typeName.equals("String")) {
+                result.append(value.getValue());
+            } else {
+                result.append(value.getValue());
+            }
+        } catch (RuntimeException error) {
+            // TODO: Provide the location of the error
+            throw error;
         }
         return null;
     }

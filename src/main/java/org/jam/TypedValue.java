@@ -30,21 +30,22 @@ public class TypedValue {
     }
 
     public int asInt() {
-        if (value instanceof Number) {
+        if (value != null && value instanceof Number) {
             return ((Number)value).intValue();
         }
-        throw new RuntimeException("Cannot convert to int: " + value);
+        throw new RuntimeException("Cannot convert " + value + " to int");
     }
 
     public double asDouble() {
-        if (value instanceof Number) {
+        if (value != null && value instanceof Number) {
             return ((Number)value).doubleValue();
         }
-        throw new RuntimeException("Cannot convert to double: " + value);
+        throw new RuntimeException("Cannot convert " + value + " to double");
     }
 
     @Override
     public String toString() {
-        return value.toString();
+        if (value != null) return value.toString();
+        throw new RuntimeException("Cannot convert null to String");
     }
 }
