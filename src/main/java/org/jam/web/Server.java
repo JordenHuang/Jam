@@ -20,6 +20,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import static java.lang.Integer.parseInt;
+
 
 /**
  * SimpleHttpServer: an IOutput implementation that directly serves HTML content via HTTP.
@@ -105,7 +107,6 @@ public class Server {
                 context.put("todo", file);
                 jam.renderTemplate(basePath.concat(templateFileName), new htmlOutput(), context);
                 sendResponse(exchange, htmlBytes);
-//                sendResponse(exchange, "hello wrold");
 
             } else if (method.equalsIgnoreCase("POST")) {
 //                  if change or add todo
@@ -114,7 +115,9 @@ public class Server {
                 System.out.print(a++);
 
                 System.out.println(br.toString());
+
 //                System.out.println(br.readLine());
+//                記得關閉
                 StringBuilder body = new StringBuilder();
                 String line;
                 while ((line = br.readLine()) != null){
@@ -123,7 +126,6 @@ public class Server {
                 System.out.println("body : " + body);
 
                 SaveFile.writeFile(decoder(body.toString()));
-//                SaveFile.writeFile(decoder(br.readLine()));
 
                 ArrayList<Todo> file = SaveFile.readFile();
                 System.out.println(file);
@@ -149,31 +151,38 @@ public class Server {
             }
         }
 
-        private void sendResponse(HttpExchange exchange, String data) throws IOException {
-            exchange.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
-            exchange.sendResponseHeaders(200, data.length());
-            String a = "kjl";
-            try (OutputStream os = exchange.getResponseBody()) {
-                System.out.println("Sended");
-                os.write(data.getBytes());
-            }
-        }
+
 
         private Todo decoder(String file) {
             System.out.println("Try to decode " + file);
             String[] pairs = file.split("&");
+            String type = new String();
             ArrayList<String> data = new ArrayList<>();
 //            System.out.println("finish decoder");
             for (String pair : pairs) {
                 String[] parts = pair.split("=", 2);
+
                 data.add(parts[1]);
 //                System.out.println("finish decoder");
             }
-            System.out.println(data);
-            Todo todo = new Todo(data.get(0),data.get(1));
+            type = data.get(0);
+//            data.remove(0);
+            if(type.equals("toggle")){
+                System.out.println(data);
+                Todo todo = new Todo("","","");
+                todo.setFinish();
+                todo.setPrimary_key(parseInt(data.get(1)));
 //            Todo todo = new Todo("Fuck", "fuck");
-            System.out.println("finish decoder");
-            return todo;
+                System.out.println(todo.primary_key);
+                return todo;
+            }
+            else{
+                System.out.println(data);
+                Todo todo = new Todo(data.get(0),data.get(1),data.get(2));
+//            Todo todo = new Todo("Fuck", "fuck");
+                System.out.println("finish decoder");
+                return todo;
+            }
         }
 
 

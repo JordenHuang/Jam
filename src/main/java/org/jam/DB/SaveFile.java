@@ -24,15 +24,24 @@ public class SaveFile {
         LocalDate localDate = LocalDate.now();
         ArrayList<Todo> todoList = readFile();
         if(todoList == null){
-//            newtodo.setPrimary_key(0);
+            newtodo.setPrimary_key(0);
+        }
+        if(newtodo.primary_key != -1){
+            for (Todo todo:todoList) {
+                System.out.println(todo.primary_key);
+                if(todo.primary_key == newtodo.primary_key){
+                    todo.setFinish();
+                }
+            }
         }
         else{
-//            int pr = todoList.get(todoList.size() - 1).getPrimary_key();
-//            newtodo.setPrimary_key(pr+1);
+            int pr = todoList.get(todoList.size() - 1).getPrimary_key();
+            newtodo.setPrimary_key(pr+1);
+            todoList.add(newtodo);
         }
 //        Todo todo = new Todo("HW4",localDate.toString());
 
-        todoList.add(newtodo);
+
         try (FileWriter writer = new FileWriter(filePath)) {
             gson.toJson(todoList, writer);
             System.out.println("成功寫入 JSON 至 " + filePath);
@@ -51,7 +60,7 @@ public class SaveFile {
 
             System.out.println("成功讀取 JSON，筆數：" + todoList.size());
             for (Todo t : todoList) {
-                System.out.println("Todo: " + t.title + " / " + t.time);
+                System.out.println("Todo: " + t.title + " / " + t.time + t.isFinish) ;
             }
         } catch (IOException e) {
             e.printStackTrace();

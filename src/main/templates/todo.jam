@@ -1,17 +1,63 @@
 
 <h3>for loop with ifDefine</h3>
 <p>Student list with optional class filter:</p>
-<ul>
-{% for (int i = 0; i < todo.length; i+=1) { %}
-    {% if (i < 5) { %}
-    <li>
-        Todo: {% todo[i].title %} (ID: {% todo[i].time %})
-    </li>
-    {% } %}
-{% } %}
-</ul>
+<table>
+<tr>
+<th>
+isfinish
+</th>
+<th>
+title
+</th>
+<th>
+detail
+</th>
+<th>
+time
+</th>
+</tr>
+{% for (int i = 0; i < todo.length; i+=1){ %}
+    <tr>
+    
+        <td>
+        {% if ( todo[i].isFinish ) { %}
+            <input type="checkbox"  name="{% todo[i].primary_key %}" onchange="toggleCheckbox(this, '{% todo[i].primary_key %}')" checked />
+        {% } %}
 
-<form method="post" action="">
+        {% else { %}
+            <input type="checkbox"  name="{% todo[i].primary_key %}"  onchange="toggleCheckbox(this, '{% todo[i].primary_key %}')" />
+        {% } %}
+        </td>
+
+        <td>
+            {% todo[i].title %}
+        </td>
+        <td>
+            {% todo[i].detail %}
+        </td>
+        <td>
+            {% todo[i].time %}
+        </td>
+    
+    </tr>
+{% } %}
+<script>
+function toggleCheckbox(el, id) {
+  fetch('/msg', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: `action=toggle&id=${id}&checked=${el.checked}`
+  }).then(() => {
+    location.reload();
+  });
+}
+</script>
+
+</table>
+
+<form method="post" action="msg">
     <input type="text" name="title" id="title" value="asd" placeholder="title" required>
     <input type="date" name="date" id="date" placeholder="title" required>
     <input type="text" name="detail" id="detail" value="asdsdf" placeholder="title" required>
