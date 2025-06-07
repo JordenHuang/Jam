@@ -5,10 +5,8 @@ import org.jam.outputType.IOutput;
 import org.jam.outputType.StandardOutput;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UnknownFormatConversionException;
 
 public class Main {
     public static void main(String[] args) {

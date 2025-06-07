@@ -36,9 +36,8 @@ public class Lexer {
     private int start = 0;
     private int current = 0;
     private int line = 1;
-    // FIXME:
     private boolean isJavaCode = false;
-//    private boolean isJavaCode = true;
+
     public Lexer(String source, Reporter reporter) {
         this.source = source;
         this.reporter = reporter;
@@ -63,6 +62,7 @@ public class Lexer {
         char c = advance();
         boolean isAllWhitespaces = true;
 
+        // HTML code
         while (!isJavaCode) {
             switch (c) {
                 case '{':
@@ -98,6 +98,7 @@ public class Lexer {
             }
         }
 
+        // Java code
         if (isJavaCode) {
             switch (c) {
                 case '%':

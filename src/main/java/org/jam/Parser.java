@@ -50,7 +50,7 @@ public class Parser {
 
     private Stmt varDeclaration() {
         Token typeToken = previous();
-        String typeName;// = Token.convertTypeToString(typeToken.type);
+        String typeName;
         switch (typeToken.type) {
             case INT_TYPE -> typeName = "Integer";
             case DOUBLE_TYPE -> typeName = "Double";
@@ -337,35 +337,19 @@ public class Parser {
         throw error(peek(), "Expect expression.");
     }
     
-    // Add field access and array access support
-    /*private Expr finishCall(Expr expr) {
-        while (true) {
-            if (match(TokenType.DOT)) {
-                Token name = consume(TokenType.IDENTIFIER, "Expect property name after '.'.");
-                expr = new GetNode(expr, name);
-            } else if (match(TokenType.LEFT_BRACKET)) {
-                Token bracket = previous();
-                Expr index = expression();
-                consume(TokenType.RIGHT_BRACKET, "Expect ']' after array index.");
-                expr = new ArrayAccessNode(expr, index, bracket);
-            } else {
-                break;
-            }
-        }
-        
-        return expr;
-    }*/
-
-    //fix
     private Expr finishCall(Expr expr) {
         while (true) {
+            // Function call
             if (match(TokenType.LEFT_PAREN)) {
-                // 這是函數調用
                 expr = finishFunctionCall(expr);
-            } else if (match(TokenType.DOT)) {
+            }
+            // Field access
+            else if (match(TokenType.DOT)) {
                 Token name = consume(TokenType.IDENTIFIER, "Expect property name after '.'.");
                 expr = new GetNode(expr, name);
-            } else if (match(TokenType.LEFT_BRACKET)) {
+            }
+            // Array access
+            else if (match(TokenType.LEFT_BRACKET)) {
                 Token bracket = previous();
                 Expr index = expression();
                 consume(TokenType.RIGHT_BRACKET, "Expect ']' after array index.");

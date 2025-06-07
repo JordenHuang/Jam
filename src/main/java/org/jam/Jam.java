@@ -46,10 +46,12 @@ public class Jam {
         return statements;
     }
 
-    public void printTokens() {
+    public void dumpTokens() {
+        System.out.println("===== Tokens =====");
         for (Token token : tokens) {
             System.out.println(token);
         }
+        System.out.println("==================");
     }
 
     public void renderTemplate(String path, IOutput outputMethod) {
@@ -83,7 +85,7 @@ public class Jam {
     public void runFile(String path) throws IOException {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
         byte[] result = run(new String(bytes, Charset.defaultCharset()));
-        IOutput outputMethod = new FileOutput(path);
+        IOutput outputMethod = new FileOutput(path.substring(0, path.lastIndexOf(".")) + ".html");
         outputMethod.write(result);
 
         // Indicate an error in the exit code.
@@ -151,7 +153,7 @@ public class Jam {
     public static void main(String[] args) throws IOException {
         Jam jam = new Jam();
         if (args.length > 1) {
-            System.out.println("Usage: jam [script]");
+            System.out.println("Usage: jam [template path]");
             System.exit(64);
         } else if (args.length == 1) {
             jam.runFile(args[0]);

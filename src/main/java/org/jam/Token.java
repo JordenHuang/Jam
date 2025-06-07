@@ -17,14 +17,8 @@ public class Token {
         this.line = line;
     }
 
-    public String getTypeString() {
-        return Token.convertTypeToString(this.type);
-    }
-
     @Override
     public String toString() {
-//        return type + "|" + literal;
-//        return type + "|" + lexeme + "|" + literal;
         return type + "|" + lexeme.replace("\n", "") + "|" + literal;
     }
 }

@@ -48,7 +48,9 @@
 </head>
 
 <body>
-    <h2 style="text-align: center;">{% title %}</h2>
+    {% if(ifDefine(title)) { %}
+        <h2 style="text-align: center;">{% title %}</h2>
+    {% } %}
 
     <table>
         <tr>

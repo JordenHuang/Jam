@@ -1,6 +1,5 @@
 package org.jam.nodes;
 
-import org.jam.nodes.ExprVisitor;
 import org.jam.Token;
 import java.util.List;
 
