@@ -16,6 +16,9 @@ public enum TokenType {
     GREATER, GREATER_EQUAL,
     LESS, LESS_EQUAL,
 
+    // Logical operators
+    AND, OR,
+
     // Equals
     PLUS_EQUAL, MINUS_EQUAL, STAR_EQUAL, SLASH_EQUAL, PERCENT_EQUAL,
 //    BITWISE_NOT_EQUAL, BITWISE_AND_EUQAL, BITWISE_OR_EUQAL,
@@ -30,7 +33,7 @@ public enum TokenType {
     TRUE, FALSE,
 
     // Keywords
-    IF, ELSE, FOR, WHILE, NULL, RETURN, AND, OR,
+    IF, ELSE, FOR, WHILE, NULL, RETURN,
 
     // Primitive types
     INT_TYPE, DOUBLE_TYPE, CHAR_TYPE, STRING_TYPE, BOOLEAN_TYPE,

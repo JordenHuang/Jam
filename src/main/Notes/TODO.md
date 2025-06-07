@@ -2,12 +2,12 @@
 
 - [ ] Add comments
 - [ ] Add JavaDoc
-- [ ] Add documentation
 - [Future] The ++ and -- operator
 - [Future] The conditional expression
 
 ## Done (from recent to old)
 
+- [x] Add documentation
 - [x] Clean up code (logs, unuseful comments)
 - [x] Provide `ifDefine()` method to check if a variable is defined (or provide from the user) in the template,
   so the template can have default value for some variables, like `{% if(ifDefine(backgroundColor)) backgroundColor else "#007acc" %}`
