@@ -1,4 +1,4 @@
-package Web.web;
+package Web;
 //package org.;
 
 import com.sun.net.httpserver.HttpServer;
