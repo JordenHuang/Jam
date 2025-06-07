@@ -82,17 +82,6 @@ public class Jam {
         if (env != null) env = new Environment();
     }
 
-    public void runFile(String path) throws IOException {
-        byte[] bytes = Files.readAllBytes(Paths.get(path));
-        byte[] result = run(new String(bytes, Charset.defaultCharset()));
-        IOutput outputMethod = new FileOutput(path.substring(0, path.lastIndexOf(".")) + ".html");
-        outputMethod.write(result);
-
-        // Indicate an error in the exit code.
-        if (reporter.hadError) System.exit(65);
-        if (reporter.hadRuntimeError) System.exit(70);
-    }
-
     public void runInteractiveShell(IOutput outputMethod) throws IOException {
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);
@@ -156,7 +145,7 @@ public class Jam {
             System.out.println("Usage: jam [template path]");
             System.exit(64);
         } else if (args.length == 1) {
-            jam.runFile(args[0]);
+            jam.renderTemplate(args[0], new StandardOutput());
         } else {
             jam.runInteractiveShell(new StandardOutput());
         }
