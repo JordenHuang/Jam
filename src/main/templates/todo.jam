@@ -1,4 +1,17 @@
 
+<style>
+        table {
+            display: inline-block;
+            border: 1px solid black;
+        }
+    
+        th, td {
+            padding: 10px;
+            border: 1px solid black;
+        }
+    </style>
+
+
 <h3>for loop with ifDefine</h3>
 <p>Student list with optional class filter:</p>
 <table>
@@ -17,30 +30,79 @@ time
 </th>
 </tr>
 {% for (int i = 0; i < todo.length; i+=1){ %}
-    <tr>
-    
-        <td>
-        {% if ( todo[i].isFinish ) { %}
-            <input type="checkbox"  name="{% todo[i].primary_key %}" onchange="toggleCheckbox(this, '{% todo[i].primary_key %}')" checked />
+    {% if ( todo[i].isFinish ) { %}
+            
+
         {% } %}
 
         {% else { %}
+    <tr>
+        <td>
             <input type="checkbox"  name="{% todo[i].primary_key %}"  onchange="toggleCheckbox(this, '{% todo[i].primary_key %}')" />
-        {% } %}
-        </td>
+            </td>
 
-        <td>
-            {% todo[i].title %}
-        </td>
-        <td>
-            {% todo[i].detail %}
-        </td>
-        <td>
-            {% todo[i].time %}
-        </td>
-    
+            <td>
+                {% todo[i].title %}
+            </td>
+            <td>
+                {% todo[i].detail %}
+            </td>
+            <td>
+                {% todo[i].time %}
+            </td>
     </tr>
+    {% } %}
 {% } %}
+<script>
+function toggleCheckbox(el, id) {
+  fetch('/msg', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: `action=toggle&id=${id}&checked=${el.checked}`
+  }).then(() => {
+    location.reload();
+  });
+}
+</script>
+
+<table>
+<tr>
+<th>
+isfinish
+</th>
+<th>
+title
+</th>
+<th>
+detail
+</th>
+<th>
+time
+</th>
+</tr>
+{% for (int i = 0; i < todo.length; i+=1){ %}
+    {% if ( todo[i].isFinish ) { %}
+    <tr>
+    
+        <td>
+        
+            <input type="checkbox"  name="{% todo[i].primary_key %}" onchange="toggleCheckbox(this, '{% todo[i].primary_key %}')" checked />
+            </td>
+            <td>
+                {% todo[i].title %}
+            </td>
+            <td>
+                {% todo[i].detail %}
+            </td>
+            <td>
+                {% todo[i].time %}
+            </td>
+    </tr>
+    {% } %}
+{% } %}
+
 <script>
 function toggleCheckbox(el, id) {
   fetch('/msg', {
