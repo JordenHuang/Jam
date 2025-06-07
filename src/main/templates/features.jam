@@ -211,6 +211,17 @@ student.id: {% student.id %}
     {% } %}
 {% } %}
 </ul>
+
+<form method="post" action="">
+    <input type="text" name="title" id="title" value="asd" placeholder="title" required>
+    <input type="date" name="date" id="date" placeholder="title" required>
+    <input type="text" name="detail" id="detail" value="asdsdf" placeholder="title" required>
+
+     <button type="submit">Submit</button>
+</form>
+
+
+
 <hr>
 <h2>Array access</h2>
 <p>

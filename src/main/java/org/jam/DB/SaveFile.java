@@ -20,17 +20,26 @@ public class SaveFile {
 //        saveFile.writeFile();
 //    }
 
-    void writeFile(){
+    public static void writeFile(Todo newtodo){
         LocalDate localDate = LocalDate.now();
         ArrayList<Todo> todoList = readFile();
-        Todo todo = new Todo("HW4",localDate.toString());
-        todoList.add(todo);
+        if(todoList == null){
+//            newtodo.setPrimary_key(0);
+        }
+        else{
+//            int pr = todoList.get(todoList.size() - 1).getPrimary_key();
+//            newtodo.setPrimary_key(pr+1);
+        }
+//        Todo todo = new Todo("HW4",localDate.toString());
+
+        todoList.add(newtodo);
         try (FileWriter writer = new FileWriter(filePath)) {
             gson.toJson(todoList, writer);
             System.out.println("成功寫入 JSON 至 " + filePath);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
 
