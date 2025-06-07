@@ -4,9 +4,13 @@ import org.jam.outputType.FileOutput;
 import org.jam.outputType.IOutput;
 import org.jam.outputType.StandardOutput;
 import org.jam.web.Server;
+import org.jam.DB.SaveFile;
+import org.jam.DB.Todo;
+
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UnknownFormatConversionException;
@@ -44,6 +48,10 @@ public class Main {
         context.put("ss", ss);
         context.put("sts", sts);
 
+        ArrayList<Todo> file = SaveFile.readFile();
+        System.out.println(file);
+//        SaveFile saveFile = new SaveFile();
+        context.put("todo", file);
 //        jam.renderTemplate(basePath.concat(templateFileName), outputType, context);
 
         jam.renderTemplate(basePath.concat(templateFileName), output, context);

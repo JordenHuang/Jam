@@ -47,27 +47,22 @@ public class Server extends IOutput {
             String method = exchange.getRequestMethod();
 
             if (method.equalsIgnoreCase("GET")) {
-//                  change
+
 
                 sendResponse(exchange, htmlBytes);
 
             } else if (method.equalsIgnoreCase("POST")) {
+//                  if change or add todo
+                
 
-                // 回應成功頁面
-//                String response = "<html><body><h1>POST received</h1><p>" + postBody + "</p></body></html>";
-                sendResponse(exchange, htmlBytes);
+
+               sendResponse(exchange, htmlBytes);
 
             } else {
-                // 不支援的請求方法
+                // 不支援
                 exchange.sendResponseHeaders(405, -1); // 405 Method Not Allowed
             }
-
-//            exchange.getResponseHeaders().add("Content-Type", "text/html; charset=UTF-8");
-//            exchange.sendResponseHeaders(200, htmlBytes.length);
-//            try (OutputStream os = exchange.getResponseBody()) {
-//                os.write(htmlBytes);
-//            }
-        }
+       }
         private void sendResponse(HttpExchange exchange, byte[] data) throws IOException {
             exchange.getResponseHeaders().add("Content-Type", "text/html; charset=UTF-8");
             exchange.sendResponseHeaders(200, data.length);

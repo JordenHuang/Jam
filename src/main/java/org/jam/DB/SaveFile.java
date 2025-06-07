@@ -15,10 +15,10 @@ import java.lang.reflect.Type;
 public class SaveFile {
     static String filePath = "src/main/Json/data.json";
     static Gson gson = new Gson();
-    public static void main(String[] args) {
-        SaveFile saveFile = new SaveFile();
-        saveFile.writeFile();
-    }
+//    public static void main(String[] args) {
+//        SaveFile saveFile = new SaveFile();
+//        saveFile.writeFile();
+//    }
 
     void writeFile(){
         LocalDate localDate = LocalDate.now();
@@ -34,7 +34,7 @@ public class SaveFile {
     }
 
 
-    static ArrayList<Todo> readFile(){
+    public static ArrayList<Todo> readFile(){
         ArrayList<Todo> todoList = null;
         try (FileReader reader = new FileReader(filePath)) {
             Type listType = new TypeToken<ArrayList<Todo>>(){}.getType();

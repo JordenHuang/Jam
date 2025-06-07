@@ -199,6 +199,18 @@ student.name: {% student.name %}
 student.id: {% student.id %}
 </p>
 
+
+<h3>for loop with ifDefine</h3>
+<p>Student list with optional class filter:</p>
+<ul>
+{% for (int i = 0; i < todo.length; i+=1) { %}
+    {% if (i < 5) { %}
+    <li>
+        Todo: {% todo[i].title %} (ID: {% todo[i].time %})
+    </li>
+    {% } %}
+{% } %}
+</ul>
 <hr>
 <h2>Array access</h2>
 <p>
