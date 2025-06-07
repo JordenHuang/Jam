@@ -1,4 +1,4 @@
-package org.jam.web;
+package Web.web;
 //package org.;
 
 import com.sun.net.httpserver.HttpServer;
@@ -12,13 +12,8 @@ import org.jam.Jam;
 
 import java.io.*;
 import java.net.InetSocketAddress;
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.rmi.UnexpectedException;
 import java.util.*;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import static java.lang.Integer.parseInt;
 
