@@ -1,5 +1,4 @@
 package Web;
-//package org.;
 
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpHandler;
@@ -42,20 +41,6 @@ public class Server {
         }
     }
 
-//    @Override
-//    public void write(byte[] content) {
-//        if (content == null || content.length == 0) {
-//            System.err.println("content is empty.");
-//            return;
-//        }
-//        this.htmlBytes = content;
-////        try {
-////            startServer();
-////        } catch (IOException e) {
-////            e.printStackTrace();
-////        }
-//    }
-
 
     public static void main(String[] args) {
         Server server = new Server();
@@ -70,18 +55,8 @@ public class Server {
         jam = new Jam();
         HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
         server.createContext("/", new HtmlHandler());
+        // 自訂get,post method
         server.createContext("/msg", new HtmlHandler());
-//        server.createContext("/", exchange -> {
-//            if (exchange.getRequestMethod().equalsIgnoreCase("GET")) {
-//                String data = "hello world";
-//                exchange.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
-//                exchange.sendResponseHeaders(200, data.length());
-//                    OutputStream os = exchange.getResponseBody();
-//                    System.out.println("Sended");
-//                    os.write(data.getBytes());
-//                    os.close();
-//            }
-//        });
         server.setExecutor(null);
         server.start();
         System.out.println("Server at http://localhost:" + PORT + "/");
@@ -97,7 +72,7 @@ public class Server {
                 System.out.println("ASD");
                 ArrayList<Todo> file = SaveFile.readFile();
                 System.out.println(file);
-//        SaveFile saveFile = new SaveFile();
+
                 Map<String, Object> context = new HashMap<>();
                 context.put("todo", file);
                 jam.renderTemplate(basePath.concat(templateFileName), new htmlOutput(), context);
@@ -105,10 +80,10 @@ public class Server {
 
             } else if (method.equalsIgnoreCase("POST")) {
 //                  if change or add todo
+//              decode request
                 InputStreamReader isr = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
                 BufferedReader br = new BufferedReader(isr);
-                System.out.print(a++);
-
+            
                 System.out.println(br.toString());
 
 //                System.out.println(br.readLine());
@@ -120,7 +95,9 @@ public class Server {
                 }
                 System.out.println("body : " + body);
 
+                // decode requestbody to Todo
                 SaveFile.writeFile(decoder(body.toString()));
+                
 
                 ArrayList<Todo> file = SaveFile.readFile();
                 System.out.println(file);
@@ -132,14 +109,15 @@ public class Server {
 
             } else {
                 // 不支援
-                exchange.sendResponseHeaders(405, -1); // 405 Method Not Allowed
+                exchange.sendResponseHeaders(405, -1);
+                // 405 Method Not Allowed
             }
         }
 
         private void sendResponse(HttpExchange exchange, byte[] data) throws IOException {
             exchange.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
             exchange.sendResponseHeaders(200, data.length);
-            String a = "kjl";
+            // String a = "kjl";
             try (OutputStream os = exchange.getResponseBody()) {
                 System.out.println("Sended");
                 os.write(data);
@@ -150,37 +128,33 @@ public class Server {
 
         private Todo decoder(String file) {
             System.out.println("Try to decode " + file);
+            // split the string by '&'
             String[] pairs = file.split("&");
             String type = new String();
             ArrayList<String> data = new ArrayList<>();
-//            System.out.println("finish decoder");
+
             for (String pair : pairs) {
                 String[] parts = pair.split("=", 2);
-
+                // get value
                 data.add(parts[1]);
-//                System.out.println("finish decoder");
             }
             type = data.get(0);
-//            data.remove(0);
+            // 分辨 資料更新 / 新增
             if(type.equals("toggle")){
                 System.out.println(data);
                 Todo todo = new Todo("","","");
                 todo.setFinish();
                 todo.setPrimary_key(parseInt(data.get(1)));
-//            Todo todo = new Todo("Fuck", "fuck");
-                System.out.println(todo.primary_key);
+                // System.out.println(todo.primary_key);
                 return todo;
             }
             else{
                 System.out.println(data);
                 Todo todo = new Todo(data.get(0),data.get(1),data.get(2));
-//            Todo todo = new Todo("Fuck", "fuck");
-                System.out.println("finish decoder");
+
+                // System.out.println("finish decoder");
                 return todo;
             }
         }
-
-
-
     }
 }

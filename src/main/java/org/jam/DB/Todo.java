@@ -1,6 +1,6 @@
 package org.jam.DB;
 
-import java.util.Date;
+
 
 public class Todo {
     public int primary_key = -1;

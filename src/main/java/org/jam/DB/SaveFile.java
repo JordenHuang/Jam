@@ -15,13 +15,11 @@ import java.lang.reflect.Type;
 public class SaveFile {
     static String filePath = "src/main/Json/data.json";
     static Gson gson = new Gson();
-//    public static void main(String[] args) {
-//        SaveFile saveFile = new SaveFile();
-//        saveFile.writeFile();
-//    }
+
 
     public static void writeFile(Todo newtodo){
         LocalDate localDate = LocalDate.now();
+        // 先讀檔
         ArrayList<Todo> todoList = readFile();
         if(todoList == null){
             newtodo.setPrimary_key(0);
@@ -39,9 +37,8 @@ public class SaveFile {
             newtodo.setPrimary_key(pr+1);
             todoList.add(newtodo);
         }
-//        Todo todo = new Todo("HW4",localDate.toString());
 
-
+//       rewrite data
         try (FileWriter writer = new FileWriter(filePath)) {
             gson.toJson(todoList, writer);
             System.out.println("成功寫入 JSON 至 " + filePath);
@@ -54,6 +51,7 @@ public class SaveFile {
 
     public static ArrayList<Todo> readFile(){
         ArrayList<Todo> todoList = null;
+        // load data
         try (FileReader reader = new FileReader(filePath)) {
             Type listType = new TypeToken<ArrayList<Todo>>(){}.getType();
             todoList = gson.fromJson(reader, listType);
