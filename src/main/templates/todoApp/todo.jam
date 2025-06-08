@@ -75,7 +75,8 @@
                             },
                             body: `action=toggle&id=${id}&checked=${el.checked}`
                         }).then(() => {
-                            location.reload();
+                            //location.reload();
+                            window.location.replace("/todoApp");
                         });
                     }
                 </script>
@@ -127,7 +128,8 @@
                             },
                             body: `action=toggle&id=${id}&checked=${el.checked}`
                         }).then(() => {
-                            location.reload();
+                            //location.reload();
+                            window.location.replace("/todoApp");
                         });
                     }
                 </script>
@@ -138,7 +140,7 @@
     <br>
     <hr>
 
-    <form method="post" action="msg">
+    <form method="post" action="/msg">
         <input type="text" name="title" id="title" value="" placeholder="Title" required>
         <input type="date" name="date" id="date" placeholder="Date" required>
         <input type="text" name="detail" id="detail" value="" placeholder="Detail" required>

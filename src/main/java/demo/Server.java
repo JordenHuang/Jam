@@ -71,6 +71,7 @@ public class Server {
                     // 405 Method Not Allowed
                     exchange.sendResponseHeaders(405, -1);
                 }
+                exchange.close();
             });
         }
 
@@ -90,6 +91,7 @@ public class Server {
                     // 405 Method Not Allowed
                     exchange.sendResponseHeaders(405, -1);
                 }
+                exchange.close();
             });
 
             // API call
@@ -118,6 +120,7 @@ public class Server {
                     // 405 Method Not Allowed
                     exchange.sendResponseHeaders(405, -1);
                 }
+                exchange.close();
             });
         }
 
