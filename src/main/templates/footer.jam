@@ -1,7 +1,0 @@
-<footer>
-  {% for (int i = 0; i < 3; i+=1) { %}
-  <p>Author: Nobody<br>
-    <a href="mailto:hege@example.com">hege@example.com</a>
-  </p>
-  {% } %}
-</footer>

@@ -1,5 +1,4 @@
-package org.jam.DB;
-
+package demo.todoApp;
 
 
 public class Todo {
@@ -22,10 +21,8 @@ public class Todo {
     public void setPrimary_key(int primary_key){
         this.primary_key = primary_key;
     }
+
     public void setFinish(){
         this.isFinish = !this.isFinish;
     }
-
-
-
 }

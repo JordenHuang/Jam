@@ -71,5 +71,5 @@
             </tr>
         {% } %}
     </table>
-    {% include "src/main/templates/footer.jam"; %}
+    {% include "src/main/templates/9x9Table/footer.jam"; %}
 </body>
