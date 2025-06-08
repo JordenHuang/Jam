@@ -13,7 +13,7 @@ import java.lang.reflect.Type;
 
 
 public class SaveFile {
-    static String filePath = "src/main/Json/todoAppDB.json";
+    static String filePath = "src/main/templates/todoApp/DB/todoAppDB.json";
     static Gson gson = new Gson();
 
     public static void writeFile(Todo newtodo) {
