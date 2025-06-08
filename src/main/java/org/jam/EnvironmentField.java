@@ -2,7 +2,6 @@ package org.jam;
 
 public class EnvironmentField {
     private Object value;
-
     private String typeName;
 
     public EnvironmentField(Object value, String typeName) {

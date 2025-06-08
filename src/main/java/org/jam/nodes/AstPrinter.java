@@ -1,3 +1,6 @@
+/**
+ * TODO: Implement those visit* methods
+ */
 package org.jam.nodes;
 
 import org.jam.*;

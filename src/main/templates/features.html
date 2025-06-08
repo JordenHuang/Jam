@@ -1,0 +1,269 @@
+<style>
+.dotLine {
+    border-top: 1px dashed black;
+}
+</style>
+
+<h1>Jam syntax test</h1>
+
+<h2>Arithmetic</h2>
+<p>int intA = 500; int intB = 100;</p>
+<p>double doubleA = 500; double doubleB = 100;</p>
+<p>String stringA = "Hello"; String stringB = " world!";</p>
+
+
+
+<hr class="dotLine">
+<h3>Operator: +</h3>
+<p>
+intA + intA = 1000
+</p>
+<p>
+intA + doubleA = 1000.0
+</p>
+<p>
+doubleA + doubleA = 1000.0
+</p>
+<p>
+stringA + stringB = Hello world!
+</p>
+
+<hr class="dotLine">
+<h3>Operator: -</h3>
+<p>
+intA - intB = 400
+</p>
+<p> intA - doubleA = 0.0
+</p>
+<p>
+doubleA - doubleB = 400.0
+</p>
+
+<hr class="dotLine">
+<h3>Operator: *</h3>
+<p>
+intA * intB = 50000
+</p>
+<p>
+intA * doubleA = 250000.0
+</p>
+<p>
+doubleA * doubleB = 50000.0
+</p>
+
+<hr class="dotLine">
+<h3>Operator: /</h3>
+<p>
+intA / intB = 5.0
+</p>
+<p>
+intA / doubleA = 1.0
+</p>
+<p>
+doubleA / doubleB = 5.0
+</p>
+
+<hr class="dotLine">
+<h3>Operator: %</h3>
+<p>
+intA % intB = 0
+</p>
+<p>
+intA % (intB+399) = 1
+</p>
+<p>
+intA % doubleA = 0
+</p>
+<p>
+doubleA % doubleB = 0
+</p>
+
+<hr>
+<h2>Condition</h2>
+<p>
+if (intA < 100) stringA
+else stringB
+<br>
+Result:  world!
+</p>
+
+<hr class="dotLine">
+<h3>ifDefine Function</h3>
+<p>
+Testing variable existence with ifDefine():
+</p>
+
+<p>
+Title (exists):
+<span style="color: blue;">9x9 table</span>
+</p>
+
+<p>
+Font Size (exists):
+<span style="font-size: 20;px;">
+    This text uses 20px font
+</span>
+</p>
+
+<p>
+Background Color (doesn't exist):
+<span style="background-color: #007acc; color: white; padding: 5px;">
+    Background: #007acc
+</span>
+</p>
+
+<p>
+Theme (doesn't exist):
+Theme is set to: <strong>light</strong>
+</p>
+
+<p>
+Logo URL (doesn't exist):
+
+    <span style="border: 2px dashed #ccc; padding: 10px; display: inline-block;">
+        No logo available
+    </span>
+
+</p>
+
+<hr>
+<h2>Control flow</h2>
+
+<h3>while loop</h3>
+<p>
+while (intB < 110) { doubleB  intB += 1; }
+<br>
+Result: 100 101 102 103 104 105 106 107 108 109 
+</p>
+
+<hr class="dotLine">
+<h3>for loop</h3>
+<p>
+for (int i = 0; i < 10; i+=1) i*i
+<br>
+Result: 0 1 4 9 16 25 36 49 64 81 
+</p>
+
+<hr class="dotLine">
+<h3>for loop with ifDefine</h3>
+<p>Student list with optional class filter:</p>
+<ul>
+
+    <li>
+        Student: AAAA (ID: 0)
+        
+    </li>
+    
+    <li>
+        Student: BBBB (ID: 1)
+        
+    </li>
+    
+    <li>
+        Student: CCCC (ID: 2)
+        
+    </li>
+    
+    <li>
+        Student: DDDD (ID: 3)
+        
+    </li>
+    
+    <li>
+        Student: EEEE (ID: 4)
+        
+    </li>
+    
+</ul>
+
+<hr>
+<h2>Block</h2>
+<pre>
+for (int i = 0; i < 10; i+=1) {
+    "i is: " i ", "
+    {
+        int i = i*i; "i in block is: " i
+    }
+}
+</pre>
+<p>
+Result:
+<br>
+i is: 0, i in block is: 0
+    <br>
+i is: 1, i in block is: 1
+    <br>
+i is: 2, i in block is: 4
+    <br>
+i is: 3, i in block is: 9
+    <br>
+i is: 4, i in block is: 16
+    <br>
+i is: 5, i in block is: 25
+    <br>
+i is: 6, i in block is: 36
+    <br>
+i is: 7, i in block is: 49
+    <br>
+i is: 8, i in block is: 64
+    <br>
+i is: 9, i in block is: 81
+    <br>
+
+</p>
+
+
+<hr>
+<h2>Field access</h2>
+<p>
+student.name: John
+</p>
+<p>
+student.id: 1111
+</p>
+
+<hr>
+<h2>Array access</h2>
+<p>
+for (int i = 0; i < students.classes.length; i+=1) {
+    student.classes[i]
+}
+<br>
+Result:
+
+    <li> Chinese
+    <br>
+
+    <li> English
+    <br>
+
+    <li> Math
+    <br>
+
+    <li> Science
+    <br>
+
+</p>
+
+
+<hr>
+<h2>Include statement</h2>
+<p>
+include "footer.html"
+<footer>
+  
+  <p>Author: Nobody<br>
+    <a href="mailto:hege@example.com">hege@example.com</a>
+  </p>
+  
+  <p>Author: Nobody<br>
+    <a href="mailto:hege@example.com">hege@example.com</a>
+  </p>
+  
+  <p>Author: Nobody<br>
+    <a href="mailto:hege@example.com">hege@example.com</a>
+  </p>
+  
+</footer>
+
+</p>

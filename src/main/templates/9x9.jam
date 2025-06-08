@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% "Multiplication table by " + student.name %}</title>
+    <title>{% if(ifDefine(title)) title else "Multiplication table" %}</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -25,7 +25,7 @@
             text-align: center;
             padding: 12px;
             transition: background-color 0.3s;
-            font-size: {% fontSize %}px;
+            font-size: {% if(ifDefine(fontSize)) fontSize else 20 %}px;
         }
 
         th {
@@ -48,7 +48,9 @@
 </head>
 
 <body>
-    <h2 style="text-align: center;">{% title %}</h2>
+    {% if(ifDefine(title)) { %}
+        <h2 style="text-align: center;">{% title %}</h2>
+    {% } %}
 
     <table>
         <tr>

@@ -29,6 +29,8 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
             }
         } catch (RuntimeError error) {
             reporter.runtimeError(error);
+        } catch (RuntimeException error) {
+            reporter.runtimeException(error);
         }
         return result.toString().getBytes();
     }
@@ -282,6 +284,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
             } catch (Exception e) {
                 throw new RuntimeException("Failed to access getter for field '" + expr.name.lexeme + "': " + e.getMessage());
             }
+
             // Case 3: Try direct public field access
             try {
                 Field field = object.getClass().getField(fieldName);
@@ -345,6 +348,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         }
 
         // Handle array access for different types
+        // List
         if (array.getValue() instanceof List) {
             List<?> list = (List<?>) array.getValue();
             int idx = index.asInt();
@@ -356,6 +360,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
             Object value = list.get(idx);
             return new TypedValue(value, getTypeNameForValue(value));
         }
+        // Object array
         else if (array.getValue() instanceof Object[]) {
             Object[] objArray = (Object[]) array.getValue();
             int idx = index.asInt();
@@ -367,6 +372,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
             Object value = objArray[idx];
             return new TypedValue(value, getTypeNameForValue(value));
         }
+        // Char array (String)
         else if (array.getValue() instanceof String) {
             String str = (String) array.getValue();
             int idx = index.asInt();
@@ -377,6 +383,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
 
             return new TypedValue(String.valueOf(str.charAt(idx)), "String");
         }
+        // Map
         else if (array.getValue() instanceof Map) {
             Map<?, ?> map = (Map<?, ?>) array.getValue();
             Object key = index.getValue();
@@ -451,19 +458,20 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         Object valueObj = evaluate(stmt.expr);
         TypedValue value = convertToTypedValue(valueObj);
 
-        String typeName = value.getTypeName();
-        if (typeName.equals("Identifier")) {
-            // TODO: check this
-            System.out.print("Identifier: ");
-            result.append(value.getValue());
-        } else if (typeName.equals("Integer")) {
-            result.append(value.asInt());
-        } else if (typeName.equals("Double")) {
-            result.append(value.asDouble());
-        } else if (typeName.equals("String")) {
-            result.append(value.getValue());
-        } else {
-            result.append(value.getValue());
+        try {
+            String typeName = value.getTypeName();
+            if (typeName.equals("Integer")) {
+                result.append(value.asInt());
+            } else if (typeName.equals("Double")) {
+                result.append(value.asDouble());
+            } else if (typeName.equals("String")) {
+                result.append(value.getValue());
+            } else {
+                result.append(value.getValue());
+            }
+        } catch (RuntimeException error) {
+            // TODO: Provide the location of the error
+            throw error;
         }
         return null;
     }
@@ -484,7 +492,23 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         return null;
     }
 
-    // Helper function
+    @Override
+    public Object visitFunctionCallExpr(FunctionCallNode<Object> expr) {
+        reporter.log("visit function call node: " + expr.name.lexeme);
+
+        String functionName = expr.name.lexeme;
+
+        // 處理內建函數
+        switch (functionName) {
+            case "ifDefine": // Built-in function `ifDefine()`
+                return handleIfDefine(expr, expr.arguments);
+            default:
+                throw new RuntimeError(expr.name, "Undefined function '" + functionName + "'.");
+        }
+    }
+
+
+    // Helper functions
     private Object evaluate(Expr expr) {
         return expr.accept(this);
     }
@@ -503,6 +527,28 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
             }
         } finally {
             this.environment = previous;
+        }
+    }
+
+    // 實作 ifDefine 函數的邏輯
+    private Object handleIfDefine(FunctionCallNode<Object> expr, List<Expr<Object>> arguments) {
+        if (arguments.size() != 1) {
+            throw new RuntimeError(expr.name, "ifDefine() expects exactly 1 argument.");
+        }
+
+        Expr<Object> arg = arguments.get(0);
+
+        // 檢查參數是否為變數表達式
+        if (!(arg instanceof VariableNode<Object> varNode)) {
+            throw new RuntimeError(expr.name, "ifDefine() argument must be a variable name.");
+        }
+
+        // 檢查變數是否在環境中定義
+        try {
+            environment.get(varNode.name);
+            return true;  // 變數存在
+        } catch (Exception e) {
+            return false; // 變數不存在
         }
     }
 
@@ -565,46 +611,5 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
     private static String capitalize(String str) {
         if (str == null || str.isEmpty()) return str;
         return Character.toUpperCase(str.charAt(0)) + str.substring(1);
-    }
-
-    // 新增 函數調用表達式
-    @Override
-    public Object visitFunctionCallExpr(FunctionCallNode<Object> expr) {
-        reporter.log("visit function call node: " + expr.name.lexeme);
-
-        String functionName = expr.name.lexeme;
-
-        // 處理內建函數
-        switch (functionName) {
-            case "ifDefine":
-                return handleIfDefine(expr, expr.arguments);
-            default:
-                throw new RuntimeError(expr.name, "Undefined function '" + functionName + "'.");
-        }
-    }
-
-    // 實作 ifDefine 函數的邏輯
-    private Object handleIfDefine(FunctionCallNode<Object> expr, List<Expr<Object>> arguments) {
-        if (arguments.size() != 1) {
-            throw new RuntimeError(expr.name, "ifDefine() expects exactly 1 argument.");
-//            throw new RuntimeError(null, "ifDefine() expects exactly 1 argument.");
-        }
-
-        Expr<Object> arg = arguments.get(0);
-
-        // 檢查參數是否為變數表達式
-        if (!(arg instanceof VariableNode<Object> varNode)) {
-            throw new RuntimeError(expr.name, "ifDefine() argument must be a variable name.");
-        }
-
-        //String varName = varNode.name.lexeme;
-
-        // 檢查變數是否在環境中定義
-        try {
-            environment.get(varNode.name);
-            return true;  // 變數存在
-        } catch (Exception e) {
-            return false; // 變數不存在
-        }
     }
 }

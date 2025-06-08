@@ -23,7 +23,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class Jam {
-    Environment env;
+    private Environment env;
     private Reporter reporter;
     private List<Token> tokens;
     private List<Stmt> statements;
@@ -46,10 +46,12 @@ public class Jam {
         return statements;
     }
 
-    public void printTokens() {
+    public void dumpTokens() {
+        System.out.println("===== Tokens =====");
         for (Token token : tokens) {
             System.out.println(token);
         }
+        System.out.println("==================");
     }
 
     public void renderTemplate(String path, IOutput outputMethod) {
@@ -80,30 +82,23 @@ public class Jam {
         if (env != null) env = new Environment();
     }
 
-    public void runFile(String path) throws IOException {
-        byte[] bytes = Files.readAllBytes(Paths.get(path));
-        byte[] result = run(new String(bytes, Charset.defaultCharset()));
-        IOutput outputMethod = new FileOutput(path);
-        outputMethod.write(result);
-
-        // Indicate an error in the exit code.
-        if (reporter.hadError) System.exit(65);
-        if (reporter.hadRuntimeError) System.exit(70);
-    }
-
     public void runInteractiveShell(IOutput outputMethod) throws IOException {
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);
 
-        System.out.print("Jam interactive shell\n");
-        System.out.print("Type \"exit\" to exit.");
+        System.out.println("Jam interactive shell");
+        System.out.println("Each input is evaluate in a separated environment.");
+        System.out.println("Type \"exit\" to exit.");
         for (;;) {
-            System.out.print("\n> ");
+            System.out.print("> ");
             String line = reader.readLine();
             if (line.equals("exit")) break;
-            if (line.isEmpty()) continue;
+            if (line.isEmpty()) {
+                continue;
+            }
             byte[] result = run(line);
             outputMethod.write(result);
+            if (!(reporter.hadError || reporter.hadRuntimeError)) System.out.print("\n");
             reporter.hadError = false;
             reporter.hadRuntimeError = false;
             clearEnv();
@@ -126,10 +121,6 @@ public class Jam {
         Lexer lexer = new Lexer(source, reporter);
         tokens = lexer.scanTokens();
 
-        for (Token t : getTokens()) {
-            System.out.println(t);
-        }
-
         Parser parser = new Parser(tokens, reporter);
         statements = parser.parse();
         Interpreter interpreter = new Interpreter(env, reporter);
@@ -151,10 +142,10 @@ public class Jam {
     public static void main(String[] args) throws IOException {
         Jam jam = new Jam();
         if (args.length > 1) {
-            System.out.println("Usage: jam [script]");
+            System.out.println("Usage: jam [template path]");
             System.exit(64);
         } else if (args.length == 1) {
-            jam.runFile(args[0]);
+            jam.renderTemplate(args[0], new StandardOutput());
         } else {
             jam.runInteractiveShell(new StandardOutput());
         }

@@ -13,9 +13,10 @@ import java.util.Map;
 
 public class Main {
     public static void main(String[] args) {
+        testFeatures("src/main/templates/", "features.jam", "features.html");
+
         String basePath = "src/main/templates/";
-//        String templateFileName = "9x9.jam";
-        String templateFileName = "features.jam";
+        String templateFileName = "9x9.jam";
 
         Jam jam = new Jam();
         IOutput outputType;
@@ -24,6 +25,24 @@ public class Main {
 
         try {
              outputType = new FileOutput(basePath + "9x9.html");
+        } catch (IOException e) {
+            outputType = null;
+            e.printStackTrace();
+        }
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("title", "9x9 table");
+        context.put("fontSize", 20);
+
+        jam.renderTemplate(basePath.concat(templateFileName), outputType, context);
+
+    }
+
+    static void testFeatures(String basePath, String templateFileName, String outputFileName) {
+        Jam jam = new Jam();
+        IOutput outputType;
+        try {
+             outputType = new FileOutput(basePath + outputFileName);
         } catch (IOException e) {
             outputType = null;
             e.printStackTrace();
@@ -43,6 +62,9 @@ public class Main {
         context.put("student", new Student(1111, "John"));
         context.put("ss", ss);
         context.put("sts", sts);
+
+
+        //jam.renderTemplate(basePath.concat(templateFileName), outputType, context);
 
         ArrayList<Todo> file = SaveFile.readFile();
         System.out.println(file);
