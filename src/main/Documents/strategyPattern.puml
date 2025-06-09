@@ -1,0 +1,18 @@
+@startuml
+
+interface IOutput {
+  +write(data: byte[]): void
+}
+
+class FileOutput {
+  +write(data: byte[]): void
+}
+
+class StandardOutput {
+  +write(data: byte[]): void
+}
+
+IOutput <|-- FileOutput
+IOutput <|-- StandardOutput
+
+@enduml

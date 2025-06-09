@@ -1,0 +1,81 @@
+@startuml
+
+class Jam {
+  +renderTemplate(path: String, outputMethod: IOutput): void
+  +renderTemplate(path: String, outputMethod: IOutput, context: Map): void
+  +runFile(path: String): void
+  +runInteractiveShell(outputMethod: IOutput): void
+  +runBatchPrompt(prompts: String[], outputMethod: IOutput): void
+  +run(source: String): byte[]
+}
+
+class Environment {
+}
+
+class Reporter {
+}
+
+class Lexer {
+  +scanTokens(): List<Token>
+}
+
+class Parser {
+  +parse(): List<Stmt>
+  -error(Token, String): ParseError
+  -synchronize(): void
+}
+
+class Interpreter {
+  +interpret(statements: List<Stmt>): byte[]
+  -evaluate(expr: Expr): Object
+  -execute(stmt: Stmt): Void
+}
+
+class Token {
+}
+
+class TokenType {
+}
+
+class Stmt {
+  +accept(visitor: StmtVisitor): T
+}
+
+class Expr {
+  +accept(visitor: ExprVisitor): T
+}
+
+interface IOutput {
+  +write(data: byte[]): void
+}
+
+class FileOutput {
+  +write(data: byte[]): void
+}
+
+class StandardOutput {
+  +write(data: byte[]): void
+}
+
+Jam --> Lexer       : Uses
+Jam --> Parser      : Uses
+Jam --> Interpreter : Uses
+Jam --> Environment : Uses
+Jam --> Reporter    : Uses
+Jam --> IOutput     : Uses
+
+Lexer --> Token : Uses
+Lexer --> TokenType : Uses
+
+Parser --> Token : Uses
+Parser --> Stmt  : Returns
+Parser --> Expr  : Returns
+
+Interpreter --> Stmt : Accepts
+Interpreter --> Expr : Accepts
+Interpreter --> Environment : Uses
+
+IOutput <|-- FileOutput
+IOutput <|-- StandardOutput
+
+@enduml

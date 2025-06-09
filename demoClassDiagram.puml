@@ -1,0 +1,50 @@
+@startuml
+
+class Todo {
++ int primary_key
++ String title
++ String detail
++ String time
++ Boolean isFinish
++ int getPrimary_key()
++ void setPrimary_key(int)
++ void setFinish()
+}
+
+class SaveFile {
+~ {static} String filePath
+~ {static} Gson gson
++ {static} void writeFile(Todo)
++ {static} ArrayList<Todo> readFile()
+}
+
+class Server {
+- int PORT
+- byte[] htmlBytes
+- String templateBasePath
+- Map<String,String> templates
++ {static} void main(String[])
+- void startServer()
+- void sendResponse(HttpExchange,byte[])
+- Todo decoder(String)
+}
+
+note left of Server::startServer
+    server.createContext("/9x9Table", exchange -> {...})
+    server.createContext("/todoApp", exchange -> {...})
+    server.createContext("/msg", exchange -> {...})
+end note
+
+interface IOutput {}
+
+class Server$htmlOutput {
++ void write(byte[])
+}
+
+Server +.. Server$htmlOutput
+IOutput <|-- Server$htmlOutput
+
+Server --> Todo
+Server --> SaveFile
+
+@enduml
