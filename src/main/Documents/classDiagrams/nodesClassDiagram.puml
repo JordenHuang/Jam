@@ -1,0 +1,161 @@
+@startuml
+
+interface nodes.ExprVisitor {
+~ T visitUnaryNode(UnaryNode<T>)
+~ T visitBinaryNode(BinaryNode<T>)
+~ T visitLiteralNode(LiteralNode<T>)
+~ T visitGroupingNode(GroupingNode<T>)
+~ T visitVariableExpr(VariableNode<T>)
+~ T visitAssignmentExpr(AssignmentNode<T>)
+~ T visitLogicalExpr(LogicalNode<T>)
+~ T visitGetExpr(GetNode<T>)
+~ T visitArrayAccessExpr(ArrayAccessNode<T>)
+~ T visitFunctionCallExpr(FunctionCallNode<T>)
+}
+
+interface nodes.StmtVisitor {
+~ T visitExpressionStmt(ExpressionNode<T>)
+~ T visitVarStmt(VarNode<T>)
+~ T visitBlockStmt(BlockNode<T>)
+~ T visitIfStmt(IfNode<T>)
+~ T visitWhileStmt(WhileNode<T>)
+~ T visitHtmlStmt(HtmlNode<T>)
+~ T visitIncludeStmt(IncludeNode<T>)
+}
+
+abstract class nodes.Expr {
++ {abstract}T accept(ExprVisitor<T>)
+}
+
+abstract class nodes.Stmt {
++ {abstract}T accept(StmtVisitor<T>)
+}
+
+' Exprs
+class nodes.UnaryNode {
++ Token operator
++ Expr<T> right
++ T accept(ExprVisitor<T>)
+}
+
+class nodes.BinaryNode {
++ Expr<T> left
++ Token operator
++ Expr<T> right
++ T accept(ExprVisitor<T>)
+}
+
+class nodes.LogicalNode {
++ Expr<T> left
++ Token operator
++ Expr<T> right
++ T accept(ExprVisitor<T>)
+}
+
+class nodes.LiteralNode {
++ Object value
++ T accept(ExprVisitor<T>)
+}
+
+class nodes.GroupingNode {
++ Expr<T> expression
++ T accept(ExprVisitor<T>)
+}
+
+class nodes.GetNode {
++ Expr<T> object
++ Token name
++ T accept(ExprVisitor<T>)
+}
+
+class nodes.AssignmentNode {
++ Token name
++ Expr<T> value
++ Token operator
++ T accept(ExprVisitor<T>)
+}
+
+class nodes.VariableNode {
++ Token name
++ String typeName
++ T accept(ExprVisitor<T>)
+}
+
+class nodes.FunctionCallNode {
++ Token name
++ List<Expr<T>> arguments
++ T accept(ExprVisitor<T>)
+}
+
+class nodes.ArrayAccessNode {
++ Expr<T> array
++ Expr<T> index
++ Token bracket
++ T accept(ExprVisitor<T>)
+}
+
+' Stmts
+class nodes.WhileNode {
++ Expr<T> condition
++ Stmt<T> body
++ T accept(StmtVisitor<T>)
+}
+
+class nodes.IfNode {
++ Expr<T> condition
++ Stmt<T> thenBranch
++ Stmt<T> elseBranch
++ T accept(StmtVisitor<T>)
+}
+
+class nodes.ExpressionNode {
++ Expr<T> expression
++ T accept(StmtVisitor<T>)
+}
+
+class nodes.HtmlNode {
++ Expr<T> expr
++ T accept(StmtVisitor<T>)
+}
+
+class nodes.IncludeNode {
++ Token filename
++ T accept(StmtVisitor<T>)
+}
+
+class nodes.BlockNode {
++ List<Stmt<T>> statements
++ T accept(StmtVisitor<T>)
+}
+
+class nodes.VarNode {
++ Token name
++ String typeName
++ Expr<T> initializer
++ T accept(StmtVisitor<T>)
+}
+
+
+Interpreter --|> ExprVisitor
+Interpreter --|> StmtVisitor
+
+nodes.Expr <|-- nodes.UnaryNode
+nodes.Expr <|-- nodes.BinaryNode
+nodes.Expr <|-- nodes.LogicalNode
+nodes.Expr <|-- nodes.LiteralNode
+nodes.Expr <|-- nodes.GroupingNode
+nodes.Expr <|-- nodes.GetNode
+nodes.Expr <|-- nodes.AssignmentNode
+nodes.Expr <|-- nodes.VariableNode
+nodes.Expr <|-- nodes.FunctionCallNode
+nodes.Expr <|-- nodes.ArrayAccessNode
+
+nodes.Stmt <|-- nodes.WhileNode
+nodes.Stmt <|-- nodes.IfNode
+nodes.Stmt <|-- nodes.ExpressionNode
+nodes.Stmt <|-- nodes.HtmlNode
+nodes.Stmt <|-- nodes.IncludeNode
+nodes.Stmt <|-- nodes.BlockNode
+nodes.Stmt <|-- nodes.VarNode
+
+@enduml
